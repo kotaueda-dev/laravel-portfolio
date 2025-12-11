@@ -4,11 +4,13 @@ use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 // サインアップ・退会
 Route::post('/signup', [AuthController::class, 'register']);
 Route::delete('/user', [AuthController::class, 'deleteAccount'])->middleware('auth:sanctum');
+
+// ログイン・ログアウト
+Route::post('/login', [AuthController::class, 'login']);
 
 // 記事
 Route::get('/articles', [ArticleController::class, 'index']);

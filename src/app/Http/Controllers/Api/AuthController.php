@@ -33,9 +33,30 @@ class AuthController extends Controller
 
         if ($user) {
             $user->delete();
+
             return response()->json(['message' => 'Account deleted successfully'], 200);
         }
 
         return response()->json(['message' => 'User not found'], 404);
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (! Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'token' => $token,
+        ], 200);
     }
 }
