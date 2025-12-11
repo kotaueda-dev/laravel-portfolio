@@ -3,7 +3,7 @@ SRC_DIR := src
 APP_SERVER := laravel-app-server
 
 # Makefileで定義する独自コマンド
-.PHONY: setup build up stop start down down-v destroy restart app serve
+.PHONY: setup build up stop start down down-v destroy restart app serve test
 
 # Laravelプロジェクトの新規作成
 setup:
@@ -60,4 +60,7 @@ optimize-clear:
 	docker compose exec $(APP_SERVER) php artisan optimize:clear
 log:
 	docker compose exec $(APP_SERVER) tail -f storage/logs/laravel.log
-
+pint:
+	docker compose exec $(APP_SERVER) ./vendor/bin/pint
+test:
+	docker compose exec $(APP_SERVER) php artisan test
