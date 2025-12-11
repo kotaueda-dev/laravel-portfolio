@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Api\GreetingController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\GreetingController;
+use Illuminate\Support\Facades\Route;
 
 // Route::get('/greeting', function () {
 //   return "Hello!";

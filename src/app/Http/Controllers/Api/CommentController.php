@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Article;
-use App\Models\Comment;
+use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
@@ -13,13 +12,13 @@ class CommentController extends Controller
     public function store(Request $request, Article $article)
     {
         $validatedData = $request->validate([
-            "message" => "required|string|max:500",
+            'message' => 'required|string|max:500',
         ]);
 
         $article->comments()->create($validatedData);
 
         return response()->json([
-            "message" => "Comment created successfully.",
+            'message' => 'Comment created successfully.',
         ]);
     }
 }

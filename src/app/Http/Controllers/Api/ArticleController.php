@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Article;
+use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
@@ -13,9 +13,9 @@ class ArticleController extends Controller
     {
         $page = $request->query('page', 1);
 
-        if (!is_numeric($page) || $page < 1) {
+        if (! is_numeric($page) || $page < 1) {
             return response()->json([
-                "message" => "Invalid parameter."
+                'message' => 'Invalid parameter.',
             ], 400);
         }
 
@@ -28,15 +28,15 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            "title"    => "required|string|max:255",
-            "content"  => "required|string",
-            "username" => "required|string|max:50",
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'username' => 'required|string|max:50',
         ]);
 
         $article = Article::create($validatedData);
 
         return response()->json([
-            "message" => "Article created successfully.",
+            'message' => 'Article created successfully.',
         ]);
     }
 
@@ -45,9 +45,9 @@ class ArticleController extends Controller
     {
         $article = Article::with('comments')->find($id);
 
-        if (!$article) {
+        if (! $article) {
             return response()->json([
-                "message" => "Article not found."
+                'message' => 'Article not found.',
             ], 404);
         }
 
@@ -59,18 +59,18 @@ class ArticleController extends Controller
     {
         $article = Article::find($id);
 
-        if(!$article) {
+        if (! $article) {
             return response()->json([
-                "message" => "Not found."
+                'message' => 'Not found.',
             ], 404);
         }
 
-        $article->increment("like");
+        $article->increment('like');
 
         return response()->json([
-            "message" => "Article {$id} liked successfully.",
-            "article_id" => $id,
-            "like" => $article->like,
+            'message' => "Article {$id} liked successfully.",
+            'article_id' => $id,
+            'like' => $article->like,
         ]);
     }
 }
