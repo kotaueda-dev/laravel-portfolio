@@ -43,6 +43,21 @@ restart:
 app:
 	docker compose exec $(APP_SERVER) sh
 
-# Laravel開発サーバ起動
+# Laravel関連コマンド
 serve:
 	docker compose exec -d $(APP_SERVER) php artisan serve --host 0.0.0.0 --port 8000
+migrate:
+	docker compose exec $(APP_SERVER) php artisan migrate
+migrate-reset:
+	docker compose exec $(APP_SERVER) php artisan migrate:reset
+seed:
+	docker compose exec $(APP_SERVER) php artisan db:seed
+cache-clear:
+	docker compose exec $(APP_SERVER) php artisan cache:clear
+config-clear:
+	docker compose exec $(APP_SERVER) php artisan config:clear
+optimize-clear:
+	docker compose exec $(APP_SERVER) php artisan optimize:clear
+log:
+	docker compose exec $(APP_SERVER) tail -f storage/logs/laravel.log
+
