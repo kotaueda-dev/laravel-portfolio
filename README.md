@@ -68,6 +68,3 @@ docker compose exec laravel-app-server php artisan test
 │   └── tests/                    # テストコード
 └── docker-config/                # Docker設定
 ```
-
-## ライセンス
-このプロジェクトは [MIT ライセンス](LICENSE) の下で提供されています。
