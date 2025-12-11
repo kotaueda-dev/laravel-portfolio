@@ -5,12 +5,6 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\GreetingController;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/greeting', function () {
-//   return "Hello!";
-// });
-
-Route::get('/greeting', [GreetingController::class, 'greeting']);
-
 // 記事
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::post('/articles', [ArticleController::class, 'store']);
