@@ -11,6 +11,7 @@ Route::delete('/user', [AuthController::class, 'deleteAccount'])->middleware('au
 
 // ログイン・ログアウト
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // 記事
 Route::get('/articles', [ArticleController::class, 'index']);
