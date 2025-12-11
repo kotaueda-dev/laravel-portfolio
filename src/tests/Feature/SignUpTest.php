@@ -2,15 +2,15 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class AuthControllerTest extends TestCase
+class SignUpTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_registers_a_new_user_successfully()
     {
         $response = $this->postJson('/api/signup', [
@@ -23,8 +23,8 @@ class AuthControllerTest extends TestCase
         $response->assertJsonStructure([
             'message',
             'user' => [
-                'id', 'name', 'email', 'created_at', 'updated_at'
-            ]
+                'id', 'name', 'email', 'created_at', 'updated_at',
+            ],
         ]);
 
         $this->assertDatabaseHas('users', [
@@ -32,7 +32,7 @@ class AuthControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_fails_to_register_with_invalid_data()
     {
         $response = $this->postJson('/api/signup', [
