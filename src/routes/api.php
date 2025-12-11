@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\ArticleController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\GreetingController;
 use Illuminate\Support\Facades\Route;
+
+// サインアップ・退会
+Route::post('/signup', [AuthController::class, 'register']);
 
 // 記事
 Route::get('/articles', [ArticleController::class, 'index']);
