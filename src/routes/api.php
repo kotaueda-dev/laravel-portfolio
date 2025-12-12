@@ -16,16 +16,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // 記事
 Route::prefix('articles')->group(function () {
     Route::get('/', [ArticleController::class, 'index']);
-    Route::get('/{id}', [ArticleController::class, 'show'])->where('id', '[0-9]+');
-    Route::post('/{id}/likes', [ArticleController::class, 'like'])->where('id', '[0-9]+');
+    Route::get('/{id}', [ArticleController::class, 'show']);
+    Route::post('/{id}/likes', [ArticleController::class, 'like']);
 
     // 認証済みユーザーのみ
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ArticleController::class, 'store']);
-        Route::put('/{id}', [ArticleController::class, 'update'])->where('id', '[0-9]+');
-        Route::delete('/{id}', [ArticleController::class, 'destroy'])->where('id', '[0-9]+');
+        Route::put('/{id}', [ArticleController::class, 'update']);
+        Route::delete('/{id}', [ArticleController::class, 'destroy']);
     });
 });
 
 // // コメント
-Route::post('/articles/{article}/comments', [CommentController::class, 'store'])->where('id', '[0-9]+');
+Route::post('/articles/{article}/comments', [CommentController::class, 'store']);
