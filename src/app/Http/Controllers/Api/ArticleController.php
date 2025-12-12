@@ -30,14 +30,18 @@ class ArticleController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'username' => 'required|string|max:50',
         ]);
 
-        $article = Article::create($validatedData);
+        $article = Article::create([
+            'title' => $validatedData['title'],
+            'content' => $validatedData['content'],
+            'user_id' => $request->user()->id,
+        ]);
 
         return response()->json([
             'message' => 'Article created successfully.',
-        ]);
+            'article' => $article,
+        ], 201);
     }
 
     // 記事の取得

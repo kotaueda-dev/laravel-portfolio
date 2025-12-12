@@ -13,7 +13,7 @@ class Article extends Model
     protected $fillable = [
         'title',
         'content',
-        'username',
+        'user_id',
     ];
 
     public function comments(): HasMany
