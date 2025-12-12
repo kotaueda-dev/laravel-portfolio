@@ -66,3 +66,5 @@ pint:
 	docker compose exec $(APP_SERVER) ./vendor/bin/pint
 test:
 	docker compose exec $(APP_SERVER) php artisan test
+sqlite:
+	docker compose exec $(APP_SERVER) sqlite3 database/database.sqlite
