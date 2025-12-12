@@ -15,8 +15,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            ArticleSeeder::class, // 記事を先に作成
-            CommentSeeder::class, // 次に、記事のIDを使ってコメントを作成
+            UserSeeder::class,
+            ArticleSeeder::class,
+            CommentSeeder::class,
         ]);
     }
 }
