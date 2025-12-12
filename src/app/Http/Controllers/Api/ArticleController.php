@@ -77,4 +77,58 @@ class ArticleController extends Controller
             'like' => $article->like,
         ]);
     }
+
+    // 記事の更新
+    public function update(Request $request, string $id)
+    {
+        $article = Article::find($id);
+
+        if (! $article) {
+            return response()->json([
+                'message' => 'Article not found.',
+            ], 404);
+        }
+
+        if ($article->user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Unauthorized.',
+            ], 403);
+        }
+
+        $validatedData = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'content' => 'sometimes|required|string',
+        ]);
+
+        $article->update($validatedData);
+
+        return response()->json([
+            'message' => 'Article updated successfully.',
+            'article' => $article,
+        ]);
+    }
+
+    // 記事の削除
+    public function destroy(Request $request, string $id)
+    {
+        $article = Article::find($id);
+
+        if (! $article) {
+            return response()->json([
+                'message' => 'Article not found.',
+            ], 404);
+        }
+
+        if ($article->user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Unauthorized.',
+            ], 403);
+        }
+
+        $article->delete();
+
+        return response()->json([
+            'message' => 'Article deleted successfully.',
+        ]);
+    }
 }
