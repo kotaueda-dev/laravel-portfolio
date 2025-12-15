@@ -13,7 +13,10 @@ RUN apk update && apk add --no-cache \
     git \
     unzip \
     icu-dev \
-    shadow
+    shadow \
+    linux-headers
+
+RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 RUN docker-php-ext-install pdo pdo_mysql opcache zip intl
 
