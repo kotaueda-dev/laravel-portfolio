@@ -3,7 +3,7 @@ SRC_DIR := src
 APP_SERVER := laravel-app-server
 
 # Makefileで定義する独自コマンド
-.PHONY: setup build up stop start down down-v destroy restart app serve test
+.PHONY: setup build up stop start down down-v destroy restart app serve tinker migrate migrate-reset seed cache-clear config-clear optimize-clear log pint test sqlite
 
 # Laravelプロジェクトの新規作成
 setup:
