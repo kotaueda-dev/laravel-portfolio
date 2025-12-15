@@ -19,7 +19,7 @@ class ArticleController extends Controller
             ], 400);
         }
 
-        $articles = Article::paginate(2);
+        $articles = Article::paginate(10);
 
         return response()->json($articles);
     }
