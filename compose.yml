@@ -4,10 +4,42 @@ services:
   laravel-app-server:
     build: ./docker-config/php
     container_name: laravel-app-server
-    ports:
-      - '8000:8000'
     extra_hosts:
       - "host.docker.internal:172.25.199.83"
     volumes:
       - ./src:/var/www/html
       - ./docker-config/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - laravel-db-server
+
+  # Webサーバ（Nginx）
+  laravel-web-server:
+    image: nginx:stable-alpine
+    container_name: laravel-web-server
+    ports:
+      - '8000:80'
+
+    volumes:
+      - ./src:/var/www/html
+      - ./docker-config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - laravel-app-server
+
+# DBサーバ（MySQL）
+  laravel-db-server:
+    image: mysql:8.0
+    container_name: laravel-db-server
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    # MySQLのデータはDocker Engineのボリュームで永続化
+    volumes:
+      - laravel-db-server_data:/var/lib/mysql
+
+volumes:
+  laravel-db-server_data:
+    driver: local

@@ -15,7 +15,6 @@ setup:
 		docker compose exec $(APP_SERVER) php artisan migrate; \
 		docker compose exec $(APP_SERVER) chmod -R 777 storage bootstrap/cache; \
 		docker compose exec $(APP_SERVER) chown -R laravel:laravel /var/www/html; \
-		make serve; \
 	else \
 		echo "-> Laravelプロジェクトが存在するため、インストールをスキップしました。"; \
 	fi
