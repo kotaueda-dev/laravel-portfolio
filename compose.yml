@@ -11,6 +11,7 @@ services:
       - ./docker-config/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     depends_on:
       - laravel-db-server
+      - laravel-cache-server
 
   # Webサーバ（Nginx）
   laravel-web-server:
@@ -25,7 +26,7 @@ services:
     depends_on:
       - laravel-app-server
 
-# DBサーバ（MySQL）
+ # DBサーバ（MySQL）
   laravel-db-server:
     image: mysql:8.0
     container_name: laravel-db-server
@@ -39,6 +40,13 @@ services:
     # MySQLのデータはDocker Engineのボリュームで永続化
     volumes:
       - laravel-db-server_data:/var/lib/mysql
+
+ # Cacheサーバ（Redis）
+  laravel-cache-server:
+    image: redis:alpine
+    container_name: laravel-cache-server
+    ports:
+      - '6379:6379'
 
 volumes:
   laravel-db-server_data:
