@@ -29,11 +29,13 @@ class ArticleCacheTest extends TestCase
         $response1->assertStatus(200);
 
         // Modify directly in DB
+        $originalTitle = $article->title;
         $article->update(['title' => 'Updated Title']);
 
         // Second fetch should return cached (old) title unless cache was invalidated
         $response2 = $this->getJson("/api/articles/{$article->id}");
         $response2->assertStatus(200);
+        $this->assertStringContainsString($originalTitle, $response2->getContent());
         $this->assertStringNotContainsString('Updated Title', $response2->getContent(), 'Expected cached response to contain old title');
 
         // Now call update endpoint to trigger cache invalidation
