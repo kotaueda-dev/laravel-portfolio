@@ -73,4 +73,30 @@ class ArticleCacheTest extends TestCase
         $cachedAfter = Cache::get("article:{$article->id}");
         $this->assertNull($cachedAfter);
     }
+
+    public function test_comment_creation_invalidates_cache()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $article = Article::factory()->create(['user_id' => $user->id]);
+
+        // Ensure cache empty and prime it
+        Cache::flush();
+        $this->getJson("/api/articles/{$article->id}");
+
+        // Ensure cached
+        $cached = Cache::get("article:{$article->id}");
+        $this->assertNotNull($cached, 'Expected article to be cached after first GET');
+
+        // Post a comment to the article
+        $commentResponse = $this->postJson("/api/articles/{$article->id}/comments", [
+            'message' => 'This is a test comment',
+        ]);
+        $commentResponse->assertStatus(201);
+
+        // Cache should be invalidated
+        $cachedAfter = Cache::get("article:{$article->id}");
+        $this->assertNull($cachedAfter, 'Expected cache to be cleared after creating a comment');
+    }
 }
