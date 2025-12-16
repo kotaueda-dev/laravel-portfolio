@@ -11,6 +11,7 @@ services:
       - ./docker-config/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     depends_on:
       - laravel-db-server
+      - laravel-cache-server
 
   # Webサーバ（Nginx）
   laravel-web-server:
