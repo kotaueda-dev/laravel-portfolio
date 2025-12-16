@@ -51,7 +51,7 @@ web:
 db:
 	docker compose exec $(DB_SERVER) sh
 
-# DB CLI
+# DB CLIコマンド
 redis:
 	docker compose exec $(CACHE_SERVER) redis-cli
 mysql:
