@@ -3,9 +3,12 @@ SRC_DIR := src
 APP_SERVER := laravel-app-server
 WEB_SERVER := laravel-web-server
 DB_SERVER := laravel-db-server
+CACHE_SERVER := laravel-cache-server
 
 # Makefileで定義する独自コマンド
-.PHONY: setup build up stop start down down-v destroy restart app serve tinker migrate migrate-reset seed cache-clear config-clear optimize-clear log pint test sqlite web db mysql
+.PHONY: setup build up stop start down down-v destroy restart \
+	app web db redis mysql \
+	serve tinker migrate migrate-reset seed cache-clear config-clear optimize-clear log pint test sqlite
 
 # Laravelプロジェクトの新規作成
 setup:
@@ -47,6 +50,10 @@ web:
 	docker compose exec $(WEB_SERVER) sh
 db:
 	docker compose exec $(DB_SERVER) sh
+
+# DB CLI
+redis:
+	docker compose exec $(CACHE_SERVER) redis-cli
 mysql:
 	docker compose exec $(DB_SERVER) mysql -u root -p
 

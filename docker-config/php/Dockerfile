@@ -18,6 +18,8 @@ RUN apk update && apk add --no-cache \
 
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 
+RUN pecl install redis && docker-php-ext-enable redis
+
 RUN docker-php-ext-install pdo pdo_mysql opcache zip intl
 
 RUN useradd -m -u 1000 laravel
