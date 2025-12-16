@@ -1,9 +1,11 @@
 # 変数定義
 SRC_DIR := src
 APP_SERVER := laravel-app-server
+WEB_SERVER := laravel-web-server
+DB_SERVER := laravel-db-server
 
 # Makefileで定義する独自コマンド
-.PHONY: setup build up stop start down down-v destroy restart app serve tinker migrate migrate-reset seed cache-clear config-clear optimize-clear log pint test sqlite
+.PHONY: setup build up stop start down down-v destroy restart app serve tinker migrate migrate-reset seed cache-clear config-clear optimize-clear log pint test sqlite web db mysql
 
 # Laravelプロジェクトの新規作成
 setup:
@@ -41,6 +43,12 @@ restart:
 # コンテナログイン
 app:
 	docker compose exec $(APP_SERVER) sh
+web:
+	docker compose exec $(WEB_SERVER) sh
+db:
+	docker compose exec $(DB_SERVER) sh
+mysql:
+	docker compose exec $(DB_SERVER) mysql -u root -p
 
 # Laravel関連コマンド
 serve:
