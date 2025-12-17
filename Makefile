@@ -14,10 +14,10 @@ CACHE_SERVER := laravel-cache-server
 setup:
 	@if [ ! -d $(SRC_DIR)/vendor ]; then \
 		make up; \
-		docker compose exec $(APP_SERVER) composer install; \
 		docker compose cp ./docker-config/php/.env.laravel $(APP_SERVER):/var/www/html/.env; \
-		docker compose exec $(APP_SERVER) php artisan key:generate; \
 		docker compose cp ./docker-config/php/.env.testing.laravel $(APP_SERVER):/var/www/html/.env.testing; \
+		docker compose exec $(APP_SERVER) composer install; \
+		docker compose exec $(APP_SERVER) php artisan key:generate; \
 		docker compose exec $(APP_SERVER) php artisan key:generate --env=testing; \
 		docker compose exec $(APP_SERVER) php artisan migrate --seed; \
 		docker compose exec $(APP_SERVER) chmod -R 777 storage bootstrap/cache; \
