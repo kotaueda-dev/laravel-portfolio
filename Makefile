@@ -14,9 +14,11 @@ CACHE_SERVER := laravel-cache-server
 setup:
 	@if [ ! -d $(SRC_DIR)/vendor ]; then \
 		make up; \
-		docker compose cp ./docker-config/php/.env.laravel $(APP_SERVER):/var/www/html/.env; \
 		docker compose exec $(APP_SERVER) composer install; \
+		docker compose cp ./docker-config/php/.env.laravel $(APP_SERVER):/var/www/html/.env; \
 		docker compose exec $(APP_SERVER) php artisan key:generate; \
+		docker compose cp ./docker-config/php/.env.testing.laravel $(APP_SERVER):/var/www/html/.env.testing; \
+		docker compose exec $(APP_SERVER) php artisan key:generate --env=testing; \
 		docker compose exec $(APP_SERVER) php artisan migrate --seed; \
 		docker compose exec $(APP_SERVER) chmod -R 777 storage bootstrap/cache; \
 		docker compose exec $(APP_SERVER) chown -R laravel:laravel /var/www/html; \
@@ -79,6 +81,6 @@ log:
 pint:
 	docker compose exec $(APP_SERVER) ./vendor/bin/pint
 test:
-	docker compose exec $(APP_SERVER) php artisan test
+	docker compose exec $(APP_SERVER) php artisan test --env=testing
 sqlite:
 	docker compose exec $(APP_SERVER) sqlite3 database/database.sqlite
