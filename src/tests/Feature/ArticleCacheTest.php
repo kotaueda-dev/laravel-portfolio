@@ -6,7 +6,6 @@ use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ArticleCacheTest extends TestCase
@@ -17,7 +16,7 @@ class ArticleCacheTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        Sanctum::actingAs($user);
+        $this->actingAs($user);
 
         $article = Article::factory()->create(['user_id' => $user->id]);
 
@@ -53,7 +52,7 @@ class ArticleCacheTest extends TestCase
     public function test_like_invalidates_cache()
     {
         $user = User::factory()->create();
-        Sanctum::actingAs($user);
+        $this->actingAs($user);
 
         $article = Article::factory()->create(['user_id' => $user->id, 'like' => 0]);
 
@@ -77,7 +76,7 @@ class ArticleCacheTest extends TestCase
     public function test_comment_creation_invalidates_cache()
     {
         $user = User::factory()->create();
-        Sanctum::actingAs($user);
+        $this->actingAs($user);
 
         $article = Article::factory()->create(['user_id' => $user->id]);
 
