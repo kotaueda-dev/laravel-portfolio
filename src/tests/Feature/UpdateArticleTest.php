@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UpdateArticleTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_update_article()
     {
         $user = User::factory()->create();
@@ -29,6 +31,7 @@ class UpdateArticleTest extends TestCase
         ]);
     }
 
+    #[Test]
     public function test_unauthorized_update_article()
     {
         $user = User::factory()->create();

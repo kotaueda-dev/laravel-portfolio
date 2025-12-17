@@ -4,13 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ReadArticleTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_can_fetch_a_single_article()
     {
         // Arrange

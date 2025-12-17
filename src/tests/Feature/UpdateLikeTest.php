@@ -4,13 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UpdateLikeTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_can_increment_article_likes()
     {
         // Arrange

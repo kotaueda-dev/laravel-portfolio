@@ -6,12 +6,14 @@ use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ArticleCacheTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_show_is_cached_and_invalidated_on_update()
     {
         // 記事を作成
@@ -63,6 +65,7 @@ class ArticleCacheTest extends TestCase
         $this->assertEquals($response4->json('title'), 'API Updated Title');
     }
 
+    #[Test]
     public function test_like_invalidates_cache()
     {
         $user = User::factory()->create();
@@ -87,6 +90,7 @@ class ArticleCacheTest extends TestCase
         $this->assertNull($cachedAfter);
     }
 
+    #[Test]
     public function test_comment_creation_invalidates_cache()
     {
         $user = User::factory()->create();

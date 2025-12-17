@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_user_can_login_with_valid_credentials()
     {
         $user = User::factory()->create([
@@ -29,6 +31,7 @@ class LoginTest extends TestCase
         ]);
     }
 
+    #[Test]
     public function test_user_cannot_login_with_invalid_credentials()
     {
         $response = $this->postJson('/api/login', [

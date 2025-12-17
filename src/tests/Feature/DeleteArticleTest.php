@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DeleteArticleTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_delete_article()
     {
         $user = User::factory()->create();
@@ -24,6 +26,7 @@ class DeleteArticleTest extends TestCase
         ]);
     }
 
+    #[Test]
     public function test_unauthorized_delete_article()
     {
         $user = User::factory()->create();

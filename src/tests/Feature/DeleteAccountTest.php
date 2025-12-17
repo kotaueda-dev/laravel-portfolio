@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -17,9 +16,7 @@ class DeleteAccountTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Sanctum::actingAs($user);
-
-        $response = $this->deleteJson('/api/user');
+        $response = $this->actingAs($user)->deleteJson('/api/user');
 
         $response->assertStatus(200);
         $response->assertJson(['message' => 'Account deleted successfully']);

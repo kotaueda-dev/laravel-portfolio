@@ -4,20 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CreateArticleTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_authenticated_user_can_create_article()
     {
         $user = User::factory()->create();
 
-        Sanctum::actingAs($user);
-
-        $response = $this->postJson('/api/articles', [
+        $response = $this->actingAs($user)->postJson('/api/articles', [
             'title' => 'Test Article',
             'content' => 'This is a test article.',
         ]);
@@ -34,6 +33,7 @@ class CreateArticleTest extends TestCase
         ]);
     }
 
+    #[Test]
     public function test_guest_cannot_create_article()
     {
         $response = $this->postJson('/api/articles', [
