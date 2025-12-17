@@ -14,39 +14,52 @@ class ArticleCacheTest extends TestCase
 
     public function test_show_is_cached_and_invalidated_on_update()
     {
-        // Arrange
+        // 記事を作成
         $user = User::factory()->create();
         $this->actingAs($user);
-
         $article = Article::factory()->create(['user_id' => $user->id]);
+        $originalTitle = $article->title;
 
-        // Ensure cache empty
+        // すべてのキャッシュを削除
         Cache::flush();
 
-        // Act - first fetch should populate cache
+        // 1. 詳細記事取得でキャッシュが作成されることを確認
         $response1 = $this->getJson("/api/articles/{$article->id}");
         $response1->assertStatus(200);
 
-        // Modify directly in DB
-        $originalTitle = $article->title;
+        $cached1 = Cache::get("article:{$article->id}");
+        $this->assertNotNull($cached1);
+        $this->assertEquals($cached1->title, $originalTitle);
+        $this->assertEquals($response1->json('title'), $originalTitle);
+
+        // 2. DBを直接更新してキャッシュが古いままであることを確認
         $article->update(['title' => 'Updated Title']);
 
-        // Second fetch should return cached (old) title unless cache was invalidated
         $response2 = $this->getJson("/api/articles/{$article->id}");
         $response2->assertStatus(200);
-        $this->assertStringContainsString($originalTitle, $response2->getContent());
-        $this->assertStringNotContainsString('Updated Title', $response2->getContent(), 'Expected cached response to contain old title');
 
-        // Now call update endpoint to trigger cache invalidation
-        $updateResponse = $this->putJson("/api/articles/{$article->id}", [
+        $cached2 = Cache::get("article:{$article->id}");
+        $this->assertNotNull($cached2);
+        $this->assertEquals($cached2->title, $originalTitle);
+        $this->assertEquals($response2->json('title'), $originalTitle);
+
+        // 3. 記事の更新でキャッシュが削除されることを確認
+        $response3 = $this->putJson("/api/articles/{$article->id}", [
             'title' => 'Updated Title',
         ]);
-        $updateResponse->assertStatus(200);
-
-        // Fetch again - should reflect new title
-        $response3 = $this->getJson("/api/articles/{$article->id}");
         $response3->assertStatus(200);
-        $this->assertStringContainsString('Updated Title', $response3->getContent());
+
+        $cached3 = Cache::get("article:{$article->id}");
+        $this->assertNull($cached3);
+
+        // 4. 再度詳細記事取得で新しいデータがキャッシュされていることを確認
+        $response4 = $this->getJson("/api/articles/{$article->id}");
+        $response4->assertStatus(200);
+
+        $cached4 = Cache::get("article:{$article->id}");
+        $this->assertNotNull($cached4);
+        $this->assertEquals($cached4->title, 'Updated Title');
+        $this->assertEquals($response4->json('title'), 'Updated Title');
     }
 
     public function test_like_invalidates_cache()
