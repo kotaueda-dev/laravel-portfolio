@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class CommentController extends Controller
 {
@@ -16,6 +17,9 @@ class CommentController extends Controller
         ]);
 
         $article->comments()->create($validatedData);
+
+        // invalidate article cache
+        Cache::forget("article:{$article->id}");
 
         return response()->json([
             'message' => 'Comment created successfully.',

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Article;
 
 class ReadArticleTest extends TestCase
 {

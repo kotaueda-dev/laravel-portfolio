@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ArticleController extends Controller
 {
@@ -47,7 +48,11 @@ class ArticleController extends Controller
     // 記事の取得
     public function show(string $id)
     {
-        $article = Article::with('comments')->find($id);
+        $cacheKey = "article:{$id}";
+
+        $article = Cache::remember($cacheKey, 300, function () use ($id) {
+            return Article::with('comments')->find($id);
+        });
 
         if (! $article) {
             return response()->json([
@@ -70,6 +75,9 @@ class ArticleController extends Controller
         }
 
         $article->increment('like');
+
+        // invalidate cache
+        Cache::forget("article:{$id}");
 
         return response()->json([
             'message' => "Article {$id} liked successfully.",
@@ -102,6 +110,9 @@ class ArticleController extends Controller
 
         $article->update($validatedData);
 
+        // invalidate cache
+        Cache::forget("article:{$id}");
+
         return response()->json([
             'message' => 'Article updated successfully.',
             'article' => $article,
@@ -126,6 +137,9 @@ class ArticleController extends Controller
         }
 
         $article->delete();
+
+        // invalidate cache
+        Cache::forget("article:{$id}");
 
         return response()->json([
             'message' => 'Article deleted successfully.',
