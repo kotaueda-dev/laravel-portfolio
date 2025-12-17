@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Article;
-use App\Models\Comment;
 
 class CreateCommentTest extends TestCase
 {
