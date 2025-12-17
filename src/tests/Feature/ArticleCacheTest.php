@@ -19,6 +19,7 @@ class ArticleCacheTest extends TestCase
         $this->actingAs($user);
         $article = Article::factory()->create(['user_id' => $user->id]);
         $originalTitle = $article->title;
+        $cacheKey = "article:{$article->id}";
 
         // すべてのキャッシュを削除
         Cache::flush();
@@ -27,39 +28,39 @@ class ArticleCacheTest extends TestCase
         $response1 = $this->getJson("/api/articles/{$article->id}");
         $response1->assertStatus(200);
 
-        $cached1 = Cache::get("article:{$article->id}");
+        $cached1 = Cache::get($cacheKey);
         $this->assertNotNull($cached1);
         $this->assertEquals($cached1->title, $originalTitle);
         $this->assertEquals($response1->json('title'), $originalTitle);
 
         // 2. DBを直接更新してキャッシュが古いままであることを確認
-        $article->update(['title' => 'Updated Title']);
+        $article->update(['title' => 'DB Direct Update Title']);
 
         $response2 = $this->getJson("/api/articles/{$article->id}");
         $response2->assertStatus(200);
 
-        $cached2 = Cache::get("article:{$article->id}");
+        $cached2 = Cache::get($cacheKey);
         $this->assertNotNull($cached2);
         $this->assertEquals($cached2->title, $originalTitle);
         $this->assertEquals($response2->json('title'), $originalTitle);
 
         // 3. 記事の更新でキャッシュが削除されることを確認
         $response3 = $this->putJson("/api/articles/{$article->id}", [
-            'title' => 'Updated Title',
+            'title' => 'API Updated Title',
         ]);
         $response3->assertStatus(200);
 
-        $cached3 = Cache::get("article:{$article->id}");
+        $cached3 = Cache::get($cacheKey);
         $this->assertNull($cached3);
 
         // 4. 再度詳細記事取得で新しいデータがキャッシュされていることを確認
         $response4 = $this->getJson("/api/articles/{$article->id}");
         $response4->assertStatus(200);
 
-        $cached4 = Cache::get("article:{$article->id}");
+        $cached4 = Cache::get($cacheKey);
         $this->assertNotNull($cached4);
-        $this->assertEquals($cached4->title, 'Updated Title');
-        $this->assertEquals($response4->json('title'), 'Updated Title');
+        $this->assertEquals($cached4->title, 'API Updated Title');
+        $this->assertEquals($response4->json('title'), 'API Updated Title');
     }
 
     public function test_like_invalidates_cache()
