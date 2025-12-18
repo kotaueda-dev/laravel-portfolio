@@ -39,6 +39,7 @@ services:
       MYSQL_ROOT_PASSWORD: password
     # MySQLのデータはDocker Engineのボリュームで永続化
     volumes:
+      - ./docker-config/mysql/init:/docker-entrypoint-initdb.d
       - laravel-db-server_data:/var/lib/mysql
 
  # Cacheサーバ（Redis）
