@@ -15,7 +15,7 @@ class ReadArticlesTest extends TestCase
     public function it_can_fetch_paginated_articles()
     {
         // Arrange
-        Article::factory()->count(15)->create();
+        Article::factory()->count(config('pagination.default_per_page'))->create();
 
         // Act
         $response = $this->getJson('/api/articles');

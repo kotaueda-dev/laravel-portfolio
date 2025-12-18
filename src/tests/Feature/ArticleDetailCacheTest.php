@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class ArticleCacheTest extends TestCase
+class ArticleDetailCacheTest extends TestCase
 {
     use RefreshDatabase;
 
