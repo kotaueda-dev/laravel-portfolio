@@ -27,7 +27,7 @@ class ArticleController extends Controller
             ], 400);
         }
 
-        $articles = $this->cacheService->rememberList((int) $page, function () {
+        $articles = $this->cacheService->rememberList($page, function () {
             return Article::paginate(config('pagination.default_per_page'));
         });
 
@@ -61,7 +61,7 @@ class ArticleController extends Controller
     public function show(string $id)
     {
         $article = $this->cacheService->rememberDetail($id, function () use ($id) {
-            return Article::find($id);
+            return Article::with('comments')->find($id);
         });
 
         if (! $article) {
