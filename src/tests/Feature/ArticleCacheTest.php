@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Helpers\CacheKeyHelper;
 use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,7 @@ class ArticleCacheTest extends TestCase
         $this->actingAs($user);
         $article = Article::factory()->create(['user_id' => $user->id]);
         $originalTitle = $article->title;
-        $cacheKey = "article:{$article->id}";
+        $cacheKey = CacheKeyHelper::articleDetailKey($article->id);
 
         // すべてのキャッシュを削除
         Cache::flush();
@@ -78,7 +79,7 @@ class ArticleCacheTest extends TestCase
         $this->getJson("/api/articles/{$article->id}");
 
         // Ensure cached
-        $cached = Cache::get("article:{$article->id}");
+        $cached = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
         $this->assertNotNull($cached);
 
         // Hit like endpoint
@@ -86,7 +87,7 @@ class ArticleCacheTest extends TestCase
         $likeResponse->assertStatus(200);
 
         // Cache should be invalidated
-        $cachedAfter = Cache::get("article:{$article->id}");
+        $cachedAfter = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
         $this->assertNull($cachedAfter);
     }
 
@@ -103,7 +104,7 @@ class ArticleCacheTest extends TestCase
         $this->getJson("/api/articles/{$article->id}");
 
         // Ensure cached
-        $cached = Cache::get("article:{$article->id}");
+        $cached = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
         $this->assertNotNull($cached, 'Expected article to be cached after first GET');
 
         // Post a comment to the article
@@ -113,7 +114,7 @@ class ArticleCacheTest extends TestCase
         $commentResponse->assertStatus(201);
 
         // Cache should be invalidated
-        $cachedAfter = Cache::get("article:{$article->id}");
+        $cachedAfter = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
         $this->assertNull($cachedAfter, 'Expected cache to be cleared after creating a comment');
     }
 }

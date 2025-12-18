@@ -4,11 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Services\ArticleCacheService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class ArticleController extends Controller
 {
+    protected ArticleCacheService $cacheService;
+
+    public function __construct(ArticleCacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     // 記事一覧の取得
     public function index(Request $request)
     {
@@ -20,7 +27,9 @@ class ArticleController extends Controller
             ], 400);
         }
 
-        $articles = Article::paginate(10);
+        $articles = $this->cacheService->rememberList((int) $page, function () {
+            return Article::paginate(config('pagination.default_per_page'));
+        });
 
         return response()->json($articles);
     }
@@ -39,19 +48,20 @@ class ArticleController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
+        $this->cacheService->forgetAllList();
+
         return response()->json([
             'message' => 'Article created successfully.',
             'article' => $article,
         ], 201);
+
     }
 
     // 記事の取得
     public function show(string $id)
     {
-        $cacheKey = "article:{$id}";
-
-        $article = Cache::remember($cacheKey, 300, function () use ($id) {
-            return Article::with('comments')->find($id);
+        $article = $this->cacheService->rememberDetail($id, function () use ($id) {
+            return Article::find($id);
         });
 
         if (! $article) {
@@ -76,8 +86,8 @@ class ArticleController extends Controller
 
         $article->increment('like');
 
-        // invalidate cache
-        Cache::forget("article:{$id}");
+        $this->cacheService->forgetAllList();
+        $this->cacheService->forgetDetail($id);
 
         return response()->json([
             'message' => "Article {$id} liked successfully.",
@@ -110,8 +120,8 @@ class ArticleController extends Controller
 
         $article->update($validatedData);
 
-        // invalidate cache
-        Cache::forget("article:{$id}");
+        $this->cacheService->forgetAllList();
+        $this->cacheService->forgetDetail($id);
 
         return response()->json([
             'message' => 'Article updated successfully.',
@@ -138,8 +148,8 @@ class ArticleController extends Controller
 
         $article->delete();
 
-        // invalidate cache
-        Cache::forget("article:{$id}");
+        $this->cacheService->forgetAllList();
+        $this->cacheService->forgetDetail($id);
 
         return response()->json([
             'message' => 'Article deleted successfully.',
