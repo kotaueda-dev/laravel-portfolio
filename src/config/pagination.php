@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'default_per_page' => 2,
+    'default_per_page' => 20,
 ];
