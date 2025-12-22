@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
+use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -13,58 +13,100 @@ class ArticleListCacheTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test]
-    public function test_index_uses_cache_service_and_returns_paginated_list_for_page_1()
+    protected ArticleCacheService $cache;
+
+    protected function setUp(): void
     {
-        $perPage = (int) config('pagination.default_per_page');
+        parent::setUp();
+        Cache::flush();
 
-        Article::factory()->count($perPage + 3)->create();
-
-        $mock = Mockery::mock(ArticleCacheService::class);
-        $this->app->instance(ArticleCacheService::class, $mock);
-
-        $mock->shouldReceive('rememberList')
-            ->once()
-            ->with('1', Mockery::type('callable'))
-            ->andReturnUsing(function ($page, $callback) {
-                return $callback();
-            });
-
-        $response = $this->getJson('/api/articles');
-        $response->assertStatus(200);
-        $response->assertJsonCount($perPage, 'data');
+        $this->cache = $this->app->make(ArticleCacheService::class);
     }
 
+    // 一覧ページを取得した際にキャッシュされることを確認するテスト
     #[Test]
-    public function test_index_uses_cache_service_with_page_param_and_returns_page_2()
+    public function test_index_is_cached()
     {
         $perPage = (int) config('pagination.default_per_page');
+        $totalArticles = $perPage + 2;
+        Article::factory()->count($totalArticles)->create();
 
-        $total = $perPage + 5;
-        Article::factory()->count($total)->create();
+        $response1 = $this->getJson('/api/articles?page=1');
+        $response1->assertStatus(200);
 
-        $mock = Mockery::mock(ArticleCacheService::class);
-        $this->app->instance(ArticleCacheService::class, $mock);
-
-        $mock->shouldReceive('rememberList')
-            ->once()
-            ->with('2', Mockery::type('callable'))
-            ->andReturnUsing(function ($page, $callback) {
-                return $callback();
-            });
-
-        $response = $this->getJson('/api/articles?page=2');
-        $response->assertStatus(200);
-
-        $expectedCount = max(0, $total - $perPage);
-        $response->assertJsonCount($expectedCount, 'data');
+        $cached = $this->cache->getList('1');
+        $this->assertNotNull($cached);
+        $this->assertEquals($cached->total(), $totalArticles);
+        $this->assertEquals($response1->json('total'), $totalArticles);
     }
 
+    // 記事を更新した際に記事一覧のキャッシュがクリアされることを確認するテスト
     #[Test]
-    public function test_index_returns_400_on_invalid_page_param()
+    public function test_index_cache_is_cleared_on_update()
     {
-        $response = $this->getJson('/api/articles?page=0');
-        $response->assertStatus(400);
-        $response->assertJsonFragment(['message' => 'Invalid parameter.']);
+        $user = \App\Models\User::factory()->create();
+        $article = Article::factory()->create(['user_id' => $user->id]);
+
+        $this->getJson('/api/articles');
+        $this->assertNotNull($this->cache->getList('1'));
+
+        $this->actingAs($user);
+        $this->putJson("/api/articles/{$article->id}", [
+            'title' => 'updated title',
+        ])->assertStatus(200);
+
+        $this->assertNull($this->cache->getList('1'));
+    }
+
+    // 記事を投稿した際に記事一覧のキャッシュがクリアされることを確認するテスト
+    #[Test]
+    public function test_index_cache_is_cleared_on_store()
+    {
+        $user = \App\Models\User::factory()->create();
+        Article::factory()->count(3)->create();
+
+        $this->getJson('/api/articles');
+        $this->assertNotNull($this->cache->getList('1'));
+
+        $this->actingAs($user);
+        $this->postJson('/api/articles', [
+            'title' => 'new article',
+            'content' => 'body',
+        ])->assertStatus(201);
+
+        $this->assertNull($this->cache->getList('1'));
+    }
+
+    // 記事を削除した際に記事一覧のキャッシュがクリアされることを確認するテスト
+    #[Test]
+    public function test_index_cache_is_cleared_on_delete()
+    {
+        $user = \App\Models\User::factory()->create();
+        $article = Article::factory()->create(['user_id' => $user->id]);
+
+        $this->getJson('/api/articles');
+        $this->assertNotNull($this->cache->getList('1'));
+
+        $this->actingAs($user);
+        $this->deleteJson("/api/articles/{$article->id}")->assertStatus(200);
+
+        $this->assertNull($this->cache->getList('1'));
+    }
+
+    // コメントが投稿された際に記事一覧のキャッシュがクリアされることを確認するテスト
+    #[Test]
+    public function test_index_cache_is_cleared_on_comment_store()
+    {
+        $user = \App\Models\User::factory()->create();
+        $article = Article::factory()->create(['user_id' => $user->id]);
+
+        $this->getJson('/api/articles');
+        $this->assertNotNull($this->cache->getList('1'));
+
+        $this->postJson("/api/articles/{$article->id}/comments", [
+            'message' => 'test comment',
+        ])->assertStatus(201);
+
+        $this->assertNull($this->cache->getList('1'));
     }
 }

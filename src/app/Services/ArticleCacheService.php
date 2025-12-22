@@ -14,6 +14,13 @@ class ArticleCacheService
         return Cache::tags(CacheKeyHelper::articleListTag())->remember($cacheKey, $ttl, $callback);
     }
 
+    public function getList(string $page): mixed
+    {
+        $cacheKey = CacheKeyHelper::articleListKey($page);
+
+        return Cache::tags(CacheKeyHelper::articleListTag())->get($cacheKey);
+    }
+
     public function forgetAllList(): void
     {
         Cache::tags(CacheKeyHelper::articleListTag())->flush();
@@ -24,6 +31,13 @@ class ArticleCacheService
         $cacheKey = CacheKeyHelper::articleDetailKey($id);
 
         return Cache::remember($cacheKey, $ttl, $callback);
+    }
+
+    public function getDetail(string $id): mixed
+    {
+        $cacheKey = CacheKeyHelper::articleDetailKey($id);
+
+        return Cache::get($cacheKey);
     }
 
     public function forgetDetail(string $id): void
