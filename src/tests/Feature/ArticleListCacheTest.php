@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -18,7 +18,7 @@ class ArticleListCacheTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Cache::flush();
+        Redis::connection('cache')->flushdb();
 
         $this->cache = $this->app->make(ArticleCacheService::class);
     }
