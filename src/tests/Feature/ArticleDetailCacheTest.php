@@ -2,17 +2,28 @@
 
 namespace Tests\Feature;
 
-use App\Helpers\CacheKeyHelper;
 use App\Models\Article;
 use App\Models\User;
+use App\Services\ArticleCacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ArticleDetailCacheTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected ArticleCacheService $cache;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Redis::connection('cache')->flushdb();
+
+        $this->cache = $this->app->make(ArticleCacheService::class);
+    }
 
     #[Test]
     public function test_show_is_cached_and_invalidated_on_update()
@@ -22,16 +33,12 @@ class ArticleDetailCacheTest extends TestCase
         $this->actingAs($user);
         $article = Article::factory()->create(['user_id' => $user->id]);
         $originalTitle = $article->title;
-        $cacheKey = CacheKeyHelper::articleDetailKey($article->id);
-
-        // すべてのキャッシュを削除
-        Cache::flush();
 
         // 1. 詳細記事取得でキャッシュが作成されることを確認
         $response1 = $this->getJson("/api/articles/{$article->id}");
         $response1->assertStatus(200);
 
-        $cached1 = Cache::get($cacheKey);
+        $cached1 = $this->cache->getDetail($article->id);
         $this->assertNotNull($cached1);
         $this->assertEquals($cached1->title, $originalTitle);
         $this->assertEquals($response1->json('title'), $originalTitle);
@@ -42,7 +49,7 @@ class ArticleDetailCacheTest extends TestCase
         $response2 = $this->getJson("/api/articles/{$article->id}");
         $response2->assertStatus(200);
 
-        $cached2 = Cache::get($cacheKey);
+        $cached2 = $this->cache->getDetail($article->id);
         $this->assertNotNull($cached2);
         $this->assertEquals($cached2->title, $originalTitle);
         $this->assertEquals($response2->json('title'), $originalTitle);
@@ -53,14 +60,14 @@ class ArticleDetailCacheTest extends TestCase
         ]);
         $response3->assertStatus(200);
 
-        $cached3 = Cache::get($cacheKey);
+        $cached3 = $this->cache->getDetail($article->id);
         $this->assertNull($cached3);
 
         // 4. 再度詳細記事取得で新しいデータがキャッシュされていることを確認
         $response4 = $this->getJson("/api/articles/{$article->id}");
         $response4->assertStatus(200);
 
-        $cached4 = Cache::get($cacheKey);
+        $cached4 = $this->cache->getDetail($article->id);
         $this->assertNotNull($cached4);
         $this->assertEquals($cached4->title, 'API Updated Title');
         $this->assertEquals($response4->json('title'), 'API Updated Title');
@@ -74,12 +81,10 @@ class ArticleDetailCacheTest extends TestCase
 
         $article = Article::factory()->create(['user_id' => $user->id, 'like' => 0]);
 
-        Cache::flush();
-
         $this->getJson("/api/articles/{$article->id}");
 
         // Ensure cached
-        $cached = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
+        $cached = $this->cache->getDetail($article->id);
         $this->assertNotNull($cached);
 
         // Hit like endpoint
@@ -87,7 +92,7 @@ class ArticleDetailCacheTest extends TestCase
         $likeResponse->assertStatus(200);
 
         // Cache should be invalidated
-        $cachedAfter = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
+        $cachedAfter = $this->cache->getDetail($article->id);
         $this->assertNull($cachedAfter);
     }
 
@@ -99,13 +104,11 @@ class ArticleDetailCacheTest extends TestCase
 
         $article = Article::factory()->create(['user_id' => $user->id]);
 
-        // Ensure cache empty and prime it
-        Cache::flush();
         $this->getJson("/api/articles/{$article->id}");
 
         // Ensure cached
-        $cached = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
-        $this->assertNotNull($cached, 'Expected article to be cached after first GET');
+        $cached = $this->cache->getDetail($article->id);
+        $this->assertNotNull($cached);
 
         // Post a comment to the article
         $commentResponse = $this->postJson("/api/articles/{$article->id}/comments", [
@@ -114,7 +117,7 @@ class ArticleDetailCacheTest extends TestCase
         $commentResponse->assertStatus(201);
 
         // Cache should be invalidated
-        $cachedAfter = Cache::get(CacheKeyHelper::articleDetailKey($article->id));
-        $this->assertNull($cachedAfter, 'Expected cache to be cleared after creating a comment');
+        $cachedAfter = $this->cache->getDetail($article->id);
+        $this->assertNull($cachedAfter);
     }
 }
