@@ -8,7 +8,7 @@ CACHE_SERVER := laravel-cache-server
 # Makefileで定義する独自コマンド
 .PHONY: setup build up stop start down down-v destroy restart \
 	app web db redis mysql \
-	serve tinker migrate migrate-reset seed cache-clear config-clear optimize-clear log pint test sqlite
+	serve tinker migrate migrate-reset seed cache-clear config-clear optimize-clear log pint test sqlite swagger
 
 # Laravelプロジェクトの新規作成
 setup:
@@ -84,3 +84,5 @@ test:
 	docker compose exec $(APP_SERVER) php artisan test --env=testing
 sqlite:
 	docker compose exec $(APP_SERVER) sqlite3 database/database.sqlite
+swagger:
+	docker compose exec $(APP_SERVER) php artisan l5-swagger:generate
