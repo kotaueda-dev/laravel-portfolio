@@ -66,6 +66,7 @@ class ArticleController extends Controller
     #[OA\Post(
         path: '/api/articles',
         summary: '記事を投稿する',
+        security: [['sanctum' => []]],
         tags: ['Articles'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -243,6 +244,7 @@ class ArticleController extends Controller
     #[OA\Put(
         path: '/api/articles/{id}',
         summary: '記事を更新する',
+        security: [['sanctum' => []]],
         tags: ['Articles'],
         parameters: [
             new OA\PathParameter(
@@ -262,14 +264,14 @@ class ArticleController extends Controller
         ),
         responses: [
             new OA\Response(
-                response: 201,
+                response: 200,
                 description: '成功',
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(
                             property: 'message',
                             type: 'string',
-                            example: 'Article created successfully.'
+                            example: 'Article updated successfully.'
                         ),
                         new OA\Property(
                             property: 'article',
@@ -326,6 +328,7 @@ class ArticleController extends Controller
     #[OA\Delete(
         path: '/api/articles/{id}',
         summary: '記事を削除する',
+        security: [['sanctum' => []]],
         tags: ['Articles'],
         parameters: [
             new OA\PathParameter(
@@ -337,7 +340,7 @@ class ArticleController extends Controller
         ],
         responses: [
             new OA\Response(
-                response: 201,
+                response: 200,
                 description: '成功',
                 content: new OA\JsonContent(
                     properties: [

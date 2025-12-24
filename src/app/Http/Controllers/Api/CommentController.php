@@ -47,7 +47,7 @@ class CommentController extends Controller
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'Comment created successfully',
+                description: 'コメント投稿成功',
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(

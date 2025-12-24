@@ -91,10 +91,11 @@ class AuthController extends Controller
     #[OA\Delete(
         path: '/api/user',
         summary: 'ユーザーアカウントを削除する',
+        security: [['sanctum' => []]],
         tags: ['Auth'],
         responses: [
             new OA\Response(
-                response: 201,
+                response: 200,
                 description: '成功',
                 content: new OA\JsonContent(
                     properties: [
@@ -168,7 +169,7 @@ class AuthController extends Controller
                         new OA\Property(
                             property: 'message',
                             type: 'string',
-                            example: 'User registered successfully.'
+                            example: 'Logged in successfully.'
                         ),
                         new OA\Property(
                             property: 'token',
@@ -205,7 +206,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login successful',
+            'message' => 'Logged in successfully.',
             'token' => $token,
         ], 200);
     }
@@ -213,6 +214,7 @@ class AuthController extends Controller
     #[OA\Post(
         path: '/api/logout',
         summary: 'ユーザーログアウトを行う',
+        security: [['sanctum' => []]],
         tags: ['Auth'],
         responses: [
             new OA\Response(

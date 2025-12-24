@@ -105,7 +105,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/articles/{id}": {
@@ -188,7 +193,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "成功",
                         "content": {
                             "application/json": {
@@ -196,7 +201,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Article created successfully."
+                                            "example": "Article updated successfully."
                                         },
                                         "article": {
                                             "$ref": "#/components/schemas/ArticleDetail"
@@ -227,7 +232,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -247,7 +257,7 @@
                     }
                 ],
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "成功",
                         "content": {
                             "application/json": {
@@ -283,7 +293,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/articles/{id}/likes": {
@@ -427,7 +442,7 @@
                 "summary": "ユーザーアカウントを削除する",
                 "operationId": "539b5fc3022cbcb3757d9a8b9becb4c8",
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "成功",
                         "content": {
                             "application/json": {
@@ -463,7 +478,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/login": {
@@ -512,7 +532,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "User registered successfully."
+                                            "example": "Logged in successfully."
                                         },
                                         "token": {
                                             "type": "string",
@@ -581,7 +601,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/articles/{article}/comments": {
@@ -625,7 +650,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Comment created successfully",
+                        "description": "コメント投稿成功",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -667,9 +692,14 @@
     "components": {
         "schemas": {
             "PostArticleDetailRequest": {
+                "required": [
+                    "title",
+                    "content"
+                ],
                 "properties": {
                     "title": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 255
                     },
                     "content": {
                         "type": "string"
