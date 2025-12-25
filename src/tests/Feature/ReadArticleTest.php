@@ -21,7 +21,6 @@ class ReadArticleTest extends TestCase
     #[Test]
     public function it_can_fetch_a_single_article()
     {
-
         // Arrange
         $article = Article::factory()->create();
 
@@ -32,5 +31,6 @@ class ReadArticleTest extends TestCase
         $response
             ->assertValidRequest()
             ->assertValidResponse(200);
+        $response->assertJsonPath('id', $article->id);
     }
 }
