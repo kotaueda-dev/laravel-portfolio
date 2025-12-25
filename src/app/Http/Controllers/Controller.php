@@ -102,6 +102,7 @@ use OpenApi\Attributes as OA;
 // エラーレスポンスのスキーマ定義
 #[OA\Schema(
     schema: 'ErrorResponse',
+    required: ['message'],
     properties: [
         new OA\Property(property: 'message', type: 'string'),
     ]
@@ -109,6 +110,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'ArticleNotFound',
+    required: ['message'],
     properties: [
         new OA\Property(property: 'message', type: 'string', example: 'Article not found.'),
     ]
@@ -116,6 +118,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'Unauthenticated',
+    required: ['message'],
     properties: [
         new OA\Property(property: 'message', type: 'string', example: 'Unauthenticated.'),
     ]
@@ -123,6 +126,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'Unauthorized',
+    required: ['message'],
     properties: [
         new OA\Property(property: 'message', type: 'string', example: 'Unauthorized.'),
     ]
@@ -130,6 +134,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'InvalidParameter',
+    required: ['message'],
     properties: [
         new OA\Property(property: 'message', type: 'string', example: 'Invalid parameter.'),
     ]
@@ -137,6 +142,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'NotFound',
+    required: ['message'],
     properties: [
         new OA\Property(property: 'message', type: 'string', example: 'Resource not found.'),
     ]
@@ -144,6 +150,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'ValidationError',
+    required: ['message'],
     properties: [
         new OA\Property(
             property: 'message',

@@ -4,11 +4,18 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spectator\Spectator;
 use Tests\TestCase;
 
 class SignUpTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Spectator::using('api-docs.json');
+    }
 
     #[Test]
     public function it_registers_a_new_user_successfully()
@@ -19,7 +26,9 @@ class SignUpTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertStatus(201);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(201);
         $response->assertJsonStructure([
             'message',
             'user' => [
@@ -41,7 +50,7 @@ class SignUpTest extends TestCase
             'password' => 'short',
         ]);
 
-        $response->assertStatus(422);
+        $response->assertValidResponse(422);
         $response->assertJsonValidationErrors(['name', 'email', 'password']);
     }
 }

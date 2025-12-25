@@ -5,11 +5,18 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spectator\Spectator;
 use Tests\TestCase;
 
 class DeleteAccountTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Spectator::using('api-docs.json');
+    }
 
     #[Test]
     public function it_deletes_an_authenticated_user_account()
@@ -18,7 +25,9 @@ class DeleteAccountTest extends TestCase
 
         $response = $this->actingAs($user)->deleteJson('/api/user');
 
-        $response->assertStatus(200);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(200);
         $response->assertJson(['message' => 'Account deleted successfully.']);
 
         $this->assertDatabaseMissing('users', [
@@ -31,6 +40,8 @@ class DeleteAccountTest extends TestCase
     {
         $response = $this->deleteJson('/api/user');
 
-        $response->assertStatus(401);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(401);
     }
 }

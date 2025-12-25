@@ -5,11 +5,18 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spectator\Spectator;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Spectator::using('api-docs.json');
+    }
 
     #[Test]
     public function test_user_can_login_with_valid_credentials()
@@ -24,7 +31,9 @@ class LoginTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertStatus(200);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(200);
         $response->assertJsonStructure([
             'message',
             'token',
@@ -39,7 +48,9 @@ class LoginTest extends TestCase
             'password' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(401);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(401);
         $response->assertJson([
             'message' => 'Invalid credentials',
         ]);

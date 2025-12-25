@@ -6,11 +6,18 @@ use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spectator\Spectator;
 use Tests\TestCase;
 
 class DeleteArticleTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Spectator::using('api-docs.json');
+    }
 
     #[Test]
     public function test_delete_article()
@@ -20,7 +27,9 @@ class DeleteArticleTest extends TestCase
 
         $response = $this->actingAs($user)->deleteJson("/api/articles/{$article->id}");
 
-        $response->assertStatus(200);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(200);
         $this->assertDatabaseMissing('articles', [
             'id' => $article->id,
         ]);
@@ -35,6 +44,11 @@ class DeleteArticleTest extends TestCase
 
         $response = $this->actingAs($user)->deleteJson("/api/articles/{$article->id}");
 
-        $response->assertStatus(403);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(403);
+        $this->assertDatabaseHas('articles', [
+            'id' => $article->id,
+        ]);
     }
 }
