@@ -21,7 +21,7 @@ class LogoutTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'message' => 'Logout successful',
+            'message' => 'Logged out successfully.',
         ]);
     }
 

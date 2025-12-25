@@ -19,7 +19,7 @@ class DeleteAccountTest extends TestCase
         $response = $this->actingAs($user)->deleteJson('/api/user');
 
         $response->assertStatus(200);
-        $response->assertJson(['message' => 'Account deleted successfully']);
+        $response->assertJson(['message' => 'Account deleted successfully.']);
 
         $this->assertDatabaseMissing('users', [
             'id' => $user->id,
