@@ -5,11 +5,18 @@ namespace Tests\Feature;
 use App\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spectator\Spectator;
 use Tests\TestCase;
 
 class UpdateLikeTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Spectator::using('api-docs.json');
+    }
 
     #[Test]
     public function it_can_increment_article_likes()
@@ -21,7 +28,9 @@ class UpdateLikeTest extends TestCase
         $response = $this->postJson("/api/articles/{$article->id}/likes");
 
         // Assert
-        $response->assertStatus(200);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(200);
         $this->assertDatabaseHas('articles', [
             'id' => $article->id,
             'like' => 1,

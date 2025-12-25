@@ -6,11 +6,18 @@ use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spectator\Spectator;
 use Tests\TestCase;
 
 class UpdateArticleTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Spectator::using('api-docs.json');
+    }
 
     #[Test]
     public function test_update_article()
@@ -23,7 +30,9 @@ class UpdateArticleTest extends TestCase
             'content' => 'Updated Content',
         ]);
 
-        $response->assertStatus(200);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(200);
         $this->assertDatabaseHas('articles', [
             'id' => $article->id,
             'title' => 'Updated Title',
@@ -43,6 +52,8 @@ class UpdateArticleTest extends TestCase
             'content' => 'Updated Content',
         ]);
 
-        $response->assertStatus(403);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(403);
     }
 }

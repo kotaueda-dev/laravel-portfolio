@@ -5,11 +5,18 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spectator\Spectator;
 use Tests\TestCase;
 
 class CreateArticleTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Spectator::using('api-docs.json');
+    }
 
     #[Test]
     public function test_authenticated_user_can_create_article()
@@ -21,7 +28,9 @@ class CreateArticleTest extends TestCase
             'content' => 'This is a test article.',
         ]);
 
-        $response->assertStatus(201);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(201);
         $response->assertJsonStructure([
             'message',
             'article' => ['id', 'title', 'content', 'user_id', 'created_at', 'updated_at'],
@@ -41,6 +50,8 @@ class CreateArticleTest extends TestCase
             'content' => 'This is a test article.',
         ]);
 
-        $response->assertStatus(401);
+        $response
+            ->assertValidRequest()
+            ->assertValidResponse(401);
     }
 }

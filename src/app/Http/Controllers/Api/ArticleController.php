@@ -235,7 +235,7 @@ class ArticleController extends Controller
 
         return response()->json([
             'message' => "Article {$id} liked successfully.",
-            'article_id' => $id,
+            'article_id' => (int) $id,
             'like' => $article->like,
         ]);
     }
@@ -284,6 +284,12 @@ class ArticleController extends Controller
                 response: 401,
                 description: '認証エラー',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthenticated')
+            ),
+            new OA\Response(
+                response: 403,
+
+                description: '権限がありません',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
                 response: 422,
@@ -356,6 +362,11 @@ class ArticleController extends Controller
                 response: 401,
                 description: '認証エラー',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthenticated')
+            ),
+            new OA\Response(
+                response: 403,
+                description: '権限がありません',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
                 response: 404,
