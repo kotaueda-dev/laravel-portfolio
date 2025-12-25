@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCommentRequest;
+use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
-use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class CommentController extends Controller
@@ -26,37 +27,18 @@ class CommentController extends Controller
                 name: 'article',
                 description: '記事ID',
                 required: true,
-                schema: new OA\Schema(type: 'integer')
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['message'],
-                properties: [
-                    new OA\Property(
-                        property: 'message',
-                        type: 'string',
-                        description: 'コメント内容',
-                        maxLength: 500,
-                        example: 'コメントの内容です。'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/StoreCommentRequest')
         ),
         responses: [
             new OA\Response(
                 response: 201,
                 description: 'コメント投稿成功',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: 'message',
-                            type: 'string',
-                            example: 'Comment created successfully.'
-                        ),
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/CommentResource')
             ),
             new OA\Response(
                 response: 404,
@@ -70,19 +52,15 @@ class CommentController extends Controller
             ),
         ]
     )]
-    public function store(Request $request, Article $article)
+    public function store(StoreCommentRequest $request, Article $article)
     {
-        $validatedData = $request->validate([
-            'message' => 'required|string|max:500',
-        ]);
+        $validatedData = $request->validated();
 
-        $article->comments()->create($validatedData);
+        $comment = $article->comments()->create($validatedData);
 
         $this->cacheService->forgetAllList();
         $this->cacheService->forgetDetail($article->id);
 
-        return response()->json([
-            'message' => 'Comment created successfully.',
-        ], 201);
+        return new CommentResource($comment);
     }
 }
