@@ -36,7 +36,8 @@ class LoginTest extends TestCase
             ->assertValidResponse(200);
         $response->assertJsonStructure([
             'message',
-            'token',
+            'access_token',
+            'user' => ['id', 'name', 'email', 'created_at', 'updated_at'],
         ]);
     }
 
