@@ -81,6 +81,7 @@ log:
 pint:
 	docker compose exec $(APP_SERVER) ./vendor/bin/pint
 test:
+	@make swagger
 	docker compose exec $(APP_SERVER) php artisan test --env=testing
 sqlite:
 	docker compose exec $(APP_SERVER) sqlite3 database/database.sqlite
