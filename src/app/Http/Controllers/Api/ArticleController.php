@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Article\IndexArticleRequest;
+use App\Http\Resources\ArticleListResource;
+use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
 use Illuminate\Http\Request;
@@ -23,43 +26,36 @@ class ArticleController extends Controller
         summary: '記事一覧を取得する',
         tags: ['Articles'],
         parameters: [
-            new OA\Parameter(
-                parameter: 'ArticlePage',
-                name: 'page',
-                in: 'query',
-                required: false,
-                description: 'ページ番号（デフォルト: 1）',
-                schema: new OA\Schema(type: 'integer')
-            ),
+            new OA\Parameter(ref: '#/components/parameters/QueryPage'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
                 description: '成功',
-                content: new OA\JsonContent(ref: '#/components/schemas/ArticlePagination')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: '#/components/schemas/ArticleListResource')
+                        ),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/PaginationLinks'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/PaginationMeta'),
+                    ]
+                )
             ),
-            new OA\Response(
-                response: 400,
-                description: '不正なパラメータ',
-                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
-            ),
+            new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
         ]
     )]
-    public function index(Request $request)
+    public function index(IndexArticleRequest $request)
     {
-        $page = $request->query('page', 1);
-
-        if (! is_numeric($page) || $page < 1) {
-            return response()->json([
-                'message' => 'Invalid parameter.',
-            ], 400);
-        }
+        $page = $request->validated('page', 1);
 
         $articles = $this->cacheService->rememberList($page, function () {
             return Article::paginate(config('pagination.default_per_page'));
         });
 
-        return response()->json($articles);
+        return ArticleListResource::collection($articles);
     }
 
     // 記事の投稿
@@ -68,14 +64,7 @@ class ArticleController extends Controller
         summary: '記事を投稿する',
         security: [['sanctum' => []]],
         tags: ['Articles'],
-        requestBody: new OA\RequestBody(
-            required: true,
-            description: '記事情報',
-            content: new OA\JsonContent(
-                required: ['title', 'content'],
-                ref: '#/components/schemas/PostArticleDetailRequest'
-            )
-        ),
+        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/ArticleStoreRequest'),
         responses: [
             new OA\Response(
                 response: 201,
@@ -89,21 +78,19 @@ class ArticleController extends Controller
                         ),
                         new OA\Property(
                             property: 'article',
-                            ref: '#/components/schemas/ArticleDetail'
+                            type: 'object',
+                            ref: '#/components/schemas/ArticleResource'
                         ),
                     ]
                 )
             ),
             new OA\Response(
                 response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthenticated')
+                ref: '#/components/responses/401_Unauthenticated'
             ),
             new OA\Response(
                 response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+                ref: '#/components/responses/422_ValidationError'),
         ]
     )]
     public function store(Request $request)
@@ -130,48 +117,29 @@ class ArticleController extends Controller
 
     // 記事の取得
     #[OA\Get(
-        path: '/api/articles/{id}',
+        path: '/api/articles/{article}',
         summary: '指定した記事を取得する',
         tags: ['Articles'],
         parameters: [
-            new OA\PathParameter(
-                name: 'id',
-                description: '記事ID',
-                required: true,
-                schema: new OA\Schema(type: 'integer')
-            ),
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleIdBind'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
                 description: '成功',
-                content: new OA\JsonContent(ref: '#/components/schemas/ArticleDetailWithComments')
+                content: new OA\JsonContent(ref: '#/components/schemas/ArticleWithComments')
             ),
-            new OA\Response(
-                response: 400,
-                description: '不正なパラメータ',
-                content: new OA\JsonContent(ref: '#/components/schemas/InvalidParameter')
-            ),
-            new OA\Response(
-                response: 404,
-                description: '記事が見つかりません',
-                content: new OA\JsonContent(ref: '#/components/schemas/NotFound')
-            ),
+            new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
+            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function show(string $id)
+    public function show(Article $article)
     {
-        $article = $this->cacheService->rememberDetail($id, function () use ($id) {
-            return Article::with('comments')->find($id);
+        $article = $this->cacheService->rememberDetail($article->id, function () use ($article) {
+            return Article::with('comments')->find($article->id);
         });
 
-        if (! $article) {
-            return response()->json([
-                'message' => 'Article not found.',
-            ], 404);
-        }
-
-        return response()->json($article);
+        return new ArticleResource($article);
     }
 
     // いいねの投稿
@@ -180,12 +148,7 @@ class ArticleController extends Controller
         summary: '記事にいいねを投稿する',
         tags: ['Articles'],
         parameters: [
-            new OA\PathParameter(
-                name: 'id',
-                description: '記事ID',
-                required: true,
-                schema: new OA\Schema(type: 'integer')
-            ),
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
         ],
         responses: [
             new OA\Response(
@@ -211,11 +174,7 @@ class ArticleController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 404,
-                description: '記事が見つかりません',
-                content: new OA\JsonContent(ref: '#/components/schemas/NotFound')
-            ),
+            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
     public function like(string $id)
@@ -247,21 +206,9 @@ class ArticleController extends Controller
         security: [['sanctum' => []]],
         tags: ['Articles'],
         parameters: [
-            new OA\PathParameter(
-                name: 'id',
-                description: '記事ID',
-                required: true,
-                schema: new OA\Schema(type: 'integer')
-            ),
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
         ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            description: '記事情報',
-            content: new OA\JsonContent(
-                required: ['title', 'content'],
-                ref: '#/components/schemas/PostArticleDetailRequest'
-            )
-        ),
+        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/ArticleStoreRequest'),
         responses: [
             new OA\Response(
                 response: 200,
@@ -275,27 +222,14 @@ class ArticleController extends Controller
                         ),
                         new OA\Property(
                             property: 'article',
-                            ref: '#/components/schemas/ArticleDetail'
+                            ref: '#/components/schemas/ArticleResource'
                         ),
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthenticated')
-            ),
-            new OA\Response(
-                response: 403,
-
-                description: '権限がありません',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
     public function update(Request $request, string $id)
@@ -337,12 +271,7 @@ class ArticleController extends Controller
         security: [['sanctum' => []]],
         tags: ['Articles'],
         parameters: [
-            new OA\PathParameter(
-                name: 'id',
-                description: '記事ID',
-                required: true,
-                schema: new OA\Schema(type: 'integer')
-            ),
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
         ],
         responses: [
             new OA\Response(
@@ -358,21 +287,9 @@ class ArticleController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthenticated')
-            ),
-            new OA\Response(
-                response: 403,
-                description: '権限がありません',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
-            new OA\Response(
-                response: 404,
-                description: '記事が見つかりません',
-                content: new OA\JsonContent(ref: '#/components/schemas/ArticleNotFound')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
+            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
     public function destroy(Request $request, string $id)

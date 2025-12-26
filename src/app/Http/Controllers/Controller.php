@@ -18,166 +18,152 @@ use OpenApi\Attributes as OA;
     description: 'Sanctumで発行されたBearerトークンを入力してください',
 )]
 
-// リクエストボディのスキーマ定義
-#[OA\Schema(
-    schema: 'PostArticleDetailRequest',
-    required: ['title', 'content'],
-    properties: [
-        new OA\Property(property: 'title', type: 'string', maxLength: 255),
-        new OA\Property(property: 'content', type: 'string'),
-    ]
-)]
+// 共通で使用するスキーマやパラメータを定義
+#[OA\Components(
+    schemas: [
+        new OA\Schema(
+            schema: 'ArticleWithComments',
+            properties: [
+                new OA\Property(ref: '#/components/schemas/ArticleResource'),
+                // comments部分は配列として定義
+                new OA\Property(
+                    property: 'comments',
+                    type: 'array',
+                    items: new OA\Items(
+                        properties: [
+                            new OA\Property(ref: '#/components/schemas/CommentResource'),
+                        ]
+                    )
+                ),
+            ]
+        ),
+        new OA\Schema(
+            schema: 'PaginationLinks',
+            properties: [
+                new OA\Property(property: 'first', type: 'string', example: 'http://localhost:8000/api/articles?page=1'),
+                new OA\Property(property: 'last', type: 'string', example: 'http://localhost:8000/api/articles?page=3'),
+                new OA\Property(property: 'prev', type: 'string', nullable: true, example: null),
+                new OA\Property(property: 'next', type: 'string', nullable: true, example: 'http://localhost:8000/api/articles?page=2'),
+            ]
+        ),
+        new OA\Schema(
+            schema: 'PaginationMeta',
+            properties: [
+                new OA\Property(property: 'current_page', type: 'integer', example: 1),
+                new OA\Property(property: 'from', type: 'integer', example: 1),
+                new OA\Property(property: 'last_page', type: 'integer', example: 3),
+                new OA\Property(property: 'path', type: 'string', example: 'http://localhost:8000/api/articles'),
+                new OA\Property(property: 'per_page', type: 'integer', example: 20),
+                new OA\Property(property: 'to', type: 'integer', example: 20),
+                new OA\Property(property: 'total', type: 'integer', example: 52),
+            ]
+        ),
+        new OA\Schema(
+            schema: 'User',
+            properties: [
+                new OA\Property(property: 'id', type: 'integer', example: 1),
+                new OA\Property(property: 'name', type: 'string', example: 'Taro Yamada'),
+                new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
+                new OA\Property(property: 'created_at', type: 'string', format: 'date-time', example: '2025-12-23T07:54:58.000000Z'),
+                new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', example: '2025-12-23T07:54:58.000000Z'),
+            ]
+        ),
+        new OA\Schema(
+            schema: 'ValidationError',
+            required: ['message'],
+            properties: [
+                new OA\Property(
+                    property: 'message',
+                    type: 'string',
+                    example: 'The title field is required. (and 1 more error)'
+                ),
+                new OA\Property(
+                    property: 'errors',
+                    type: 'object',
+                    description: '各フィールドごとのエラーメッセージ',
+                    additionalProperties: new OA\AdditionalProperties(
+                        type: 'array',
+                        items: new OA\Items(type: 'string', example: 'The title field is required.')
+                    )
+                ),
+            ]
+        ),
+    ],
+    // パラメータ定義
+    parameters: [
+        new OA\Parameter(
+            parameter: 'QueryPage',
+            name: 'page',
+            in: 'query',
+            description: 'ページ番号（省略時は1）',
+            required: false,
+            schema: new OA\Schema(type: 'integer', default: 1, minimum: 1)
+        ),
+        new OA\PathParameter(
+            parameter: 'PathArticleId',
+            name: 'id',
+            description: '記事ID',
+            required: true,
+            schema: new OA\Schema(type: 'integer', example: 1)
+        ),
+        new OA\PathParameter(
+            parameter: 'PathArticleIdBind',
+            name: 'article',
+            description: '記事ID',
+            required: true,
+            schema: new OA\Schema(type: 'integer', example: 1)
+        ),
+    ],
+    // リクエストボディ定義
+    requestBodies: [],
 
-// レスポンスボディのスキーマ定義
-#[OA\Schema(
-    schema: 'ArticleDetail',
-    properties: [
-        new OA\Property(property: 'id', type: 'integer', example: 1),
-        new OA\Property(property: 'user_id', type: 'integer', example: 1),
-        new OA\Property(property: 'title', type: 'string', example: '記事タイトル'),
-        new OA\Property(property: 'content', type: 'string', example: '記事の内容'),
-        new OA\Property(property: 'like', type: 'integer', example: 1),
-        new OA\Property(property: 'created_at', type: 'string', format: 'date-time', example: '2025-12-23T07:54:58.000000Z'),
-        new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', example: '2025-12-23T07:54:58.000000Z'),
-    ]
-)]
-
-// Articles関連のスキーマ定義
-#[OA\Schema(
-    schema: 'ArticleDetailWithComments',
-    properties: [
-        new OA\Property(property: 'id', type: 'integer', example: 1),
-        new OA\Property(property: 'user_id', type: 'integer', example: 1),
-        new OA\Property(property: 'title', type: 'string', example: '記事タイトル'),
-        new OA\Property(property: 'content', type: 'string', example: '記事の内容'),
-        new OA\Property(property: 'like', type: 'integer', example: 1),
-        new OA\Property(property: 'created_at', type: 'string', format: 'date-time', example: '2025-12-23T07:54:58.000000Z'),
-        new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', example: '2025-12-23T07:54:58.000000Z'),
-        // comments部分は配列として定義
-        new OA\Property(
-            property: 'comments',
-            type: 'array',
-            items: new OA\Items(
+    // レスポンス定義
+    responses: [
+        new OA\Response(
+            response: '400_InvalidParameter',
+            description: '不正なパラメータ',
+            content: new OA\JsonContent(
+                required: ['message'],
                 properties: [
-                    new OA\Property(property: 'id', type: 'integer', example: 1),
-                    new OA\Property(property: 'article_id', type: 'integer', example: 1),
-                    new OA\Property(property: 'message', type: 'string', example: 'コメントの内容'),
-                    new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
-                    new OA\Property(property: 'updated_at', type: 'string', format: 'date-time'),
+                    new OA\Property(property: 'message', type: 'string', example: 'Invalid parameter.'),
                 ]
             )
         ),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'PaginationLink',
-    properties: [
-        new OA\Property(property: 'url', type: 'string', nullable: true),
-        new OA\Property(property: 'label', type: 'string'),
-        new OA\Property(property: 'page', type: 'integer', nullable: true),
-        new OA\Property(property: 'active', type: 'boolean'),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'ArticlePagination',
-    properties: [
-        new OA\Property(property: 'current_page', type: 'integer', example: 1),
-        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/ArticleDetail')),
-        new OA\Property(property: 'first_page_url', type: 'string'),
-        new OA\Property(property: 'from', type: 'integer', nullable: true),
-        new OA\Property(property: 'last_page', type: 'integer'),
-        new OA\Property(property: 'last_page_url', type: 'string'),
-        new OA\Property(property: 'links', type: 'array', items: new OA\Items(ref: '#/components/schemas/PaginationLink')),
-        new OA\Property(property: 'next_page_url', type: 'string', nullable: true),
-        new OA\Property(property: 'path', type: 'string', nullable: true),
-        new OA\Property(property: 'per_page', type: 'integer', example: 20),
-        new OA\Property(property: 'prev_page_url', type: 'string', nullable: true),
-        new OA\Property(property: 'to', type: 'integer', example: 20),
-        new OA\Property(property: 'total', type: 'integer', example: 50),
-    ]
-)]
-
-// エラーレスポンスのスキーマ定義
-#[OA\Schema(
-    schema: 'ErrorResponse',
-    required: ['message'],
-    properties: [
-        new OA\Property(property: 'message', type: 'string'),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'ArticleNotFound',
-    required: ['message'],
-    properties: [
-        new OA\Property(property: 'message', type: 'string', example: 'Article not found.'),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'Unauthenticated',
-    required: ['message'],
-    properties: [
-        new OA\Property(property: 'message', type: 'string', example: 'Unauthenticated.'),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'Unauthorized',
-    required: ['message'],
-    properties: [
-        new OA\Property(property: 'message', type: 'string', example: 'Unauthorized.'),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'InvalidParameter',
-    required: ['message'],
-    properties: [
-        new OA\Property(property: 'message', type: 'string', example: 'Invalid parameter.'),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'NotFound',
-    required: ['message'],
-    properties: [
-        new OA\Property(property: 'message', type: 'string', example: 'Resource not found.'),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'ValidationError',
-    required: ['message'],
-    properties: [
-        new OA\Property(
-            property: 'message',
-            type: 'string',
-            example: 'The title field is required. (and 1 more error)'
-        ),
-        new OA\Property(
-            property: 'errors',
-            type: 'object',
-            description: '各フィールドごとのエラーメッセージ',
-            // additionalPropertiesを使うことで、動的なフィールド名（title, content等）を表現できます
-            additionalProperties: new OA\AdditionalProperties(
-                type: 'array',
-                items: new OA\Items(type: 'string', example: 'The title field is required.')
+        new OA\Response(
+            response: '401_Unauthenticated',
+            description: '認証エラー',
+            content: new OA\JsonContent(
+                required: ['message'],
+                properties: [
+                    new OA\Property(property: 'message', type: 'string', example: 'Unauthenticated.'),
+                ]
             )
         ),
-    ]
-)]
-
-#[OA\Schema(
-    schema: 'User',
-    properties: [
-        new OA\Property(property: 'name', type: 'string', example: 'Taro Yamada'),
-        new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
-        new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
-        new OA\Property(property: 'updated_at', type: 'string', format: 'date-time'),
-        new OA\Property(property: 'id', type: 'integer', example: 1),
+        new OA\Response(
+            response: '403_Unauthorized',
+            description: '権限エラー',
+            content: new OA\JsonContent(
+                required: ['message'],
+                properties: [
+                    new OA\Property(property: 'message', type: 'string', example: 'Unauthorized.'),
+                ]
+            )
+        ),
+        new OA\Response(
+            response: '404_NotFound',
+            description: 'リソースが見つからない',
+            content: new OA\JsonContent(
+                required: ['message'],
+                properties: [
+                    new OA\Property(property: 'message', type: 'string', example: 'Not found.'),
+                ]
+            )
+        ),
+        new OA\Response(
+            response: '422_ValidationError',
+            description: 'バリデーションエラー',
+            content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
+        ),
     ]
 )]
 

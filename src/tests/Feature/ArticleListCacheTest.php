@@ -37,7 +37,7 @@ class ArticleListCacheTest extends TestCase
         $cached = $this->cache->getList('1');
         $this->assertNotNull($cached);
         $this->assertEquals($cached->total(), $totalArticles);
-        $this->assertEquals($response1->json('total'), $totalArticles);
+        $this->assertEquals($response1->json('meta.total'), $totalArticles);
     }
 
     // 記事を更新した際に記事一覧のキャッシュがクリアされることを確認するテスト

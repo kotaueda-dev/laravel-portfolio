@@ -23,12 +23,7 @@ class CommentController extends Controller
         summary: 'IDで指定した記事にコメントを投稿する',
         tags: ['Comments'],
         parameters: [
-            new OA\PathParameter(
-                name: 'article',
-                description: '記事ID',
-                required: true,
-                schema: new OA\Schema(type: 'string')
-            ),
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleIdBind'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -40,16 +35,8 @@ class CommentController extends Controller
                 description: 'コメント投稿成功',
                 content: new OA\JsonContent(ref: '#/components/schemas/CommentResource')
             ),
-            new OA\Response(
-                response: 404,
-                description: '記事が見つかりません',
-                content: new OA\JsonContent(ref: '#/components/schemas/NotFound')
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
     public function store(StoreCommentRequest $request, Article $article)

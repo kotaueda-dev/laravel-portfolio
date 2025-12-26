@@ -30,11 +30,7 @@ class AuthController extends Controller
                 description: 'ユーザー登録成功',
                 content: new OA\JsonContent(ref: '#/components/schemas/UserResource')
             ),
-            new OA\Response(
-                response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
     public function register(RegisterRequest $request)
@@ -73,21 +69,9 @@ class AuthController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthenticated')
-            ),
-            new OA\Response(
-                response: 403,
-                description: '権限エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
     public function deleteAccount(DeleteAccountRequest $request)
@@ -137,16 +121,8 @@ class AuthController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
     public function login(LoginRequest $request)
@@ -186,11 +162,7 @@ class AuthController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
         ]
     )]
     public function logout(Request $request)

@@ -16,7 +16,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // 記事
 Route::prefix('articles')->group(function () {
     Route::get('/', [ArticleController::class, 'index']);
-    Route::get('/{id}', [ArticleController::class, 'show']);
+    Route::get('/{article}', [ArticleController::class, 'show']);
     Route::post('/{id}/likes', [ArticleController::class, 'like']);
 
     // 認証済みユーザーのみ
