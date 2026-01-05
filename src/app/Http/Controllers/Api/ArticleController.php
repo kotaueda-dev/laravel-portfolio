@@ -110,7 +110,6 @@ class ArticleController extends Controller
             'message' => 'Article created successfully.',
             'article' => $article,
         ], 201);
-
     }
 
     // 記事の取得
@@ -175,24 +174,16 @@ class ArticleController extends Controller
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function like(string $id)
+    public function like(Article $article)
     {
-        $article = Article::find($id);
-
-        if (! $article) {
-            return response()->json([
-                'message' => 'Not found.',
-            ], 404);
-        }
-
         $article->increment('like');
 
         $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($id);
+        $this->cacheService->forgetDetail($article->id);
 
         return response()->json([
-            'message' => "Article {$id} liked successfully.",
-            'article_id' => (int) $id,
+            'message' => "Article {$article->id} liked successfully.",
+            'article_id' => (int) $article->id,
             'like' => $article->like,
         ]);
     }
