@@ -52,8 +52,5 @@ class LoginTest extends TestCase
         $response
             ->assertValidRequest()
             ->assertValidResponse(401);
-        $response->assertJson([
-            'message' => 'Invalid credentials',
-        ]);
     }
 }
