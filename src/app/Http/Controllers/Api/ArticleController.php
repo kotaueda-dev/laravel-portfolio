@@ -206,7 +206,7 @@ class ArticleController extends Controller
         parameters: [
             new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
         ],
-        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/ArticleStoreRequest'),
+        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/StoreArticleRequest'),
         responses: [
             new OA\Response(
                 response: 200,
