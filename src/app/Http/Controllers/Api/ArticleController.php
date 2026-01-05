@@ -53,8 +53,8 @@ class ArticleController extends Controller
     {
         $page = $request->validated('page');
 
-        $articles = $this->cacheService->rememberList($page, function () {
-            return Article::paginate(config('pagination.default_per_page'));
+        $articles = $this->cacheService->rememberList($page, function () use ($page) {
+            return Article::paginate(config('pagination.default_per_page'), ['*'], 'page', $page);
         });
 
         return ArticleListResource::collection($articles);
