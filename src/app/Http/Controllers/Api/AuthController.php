@@ -70,7 +70,6 @@ class AuthController extends Controller
                 )
             ),
             new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
-            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
             new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
@@ -80,9 +79,7 @@ class AuthController extends Controller
 
         // パスワードチェック
         if (! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Invalid password.',
-            ], 403);
+            abort(422);
         }
 
         $user->delete();
@@ -130,7 +127,7 @@ class AuthController extends Controller
         $credentials = $request->validated();
 
         if (! Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            abort(401);
         }
 
         $user = Auth::user();
