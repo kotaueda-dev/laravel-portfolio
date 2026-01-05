@@ -84,7 +84,9 @@ class AuthController extends Controller
 
         $user->delete();
 
-        return response()->json(['message' => 'Account deleted successfully.'], 200);
+        return response()->json([
+            'message' => 'Account deleted successfully.',
+        ], 200);
     }
 
     #[OA\Post(
