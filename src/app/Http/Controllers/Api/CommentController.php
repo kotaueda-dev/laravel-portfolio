@@ -48,6 +48,8 @@ class CommentController extends Controller
         $this->cacheService->forgetAllList();
         $this->cacheService->forgetDetail($article->id);
 
-        return new CommentResource($comment);
+        return (new CommentResource($comment))
+            ->response()
+            ->setStatusCode(201);
     }
 }
