@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeleteArticleRequest;
 use App\Http\Requests\IndexArticleRequest;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
@@ -10,7 +11,6 @@ use App\Http\Resources\ArticleListResource;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
-use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class ArticleController extends Controller
@@ -265,26 +265,12 @@ class ArticleController extends Controller
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function destroy(Request $request, string $id)
+    public function destroy(DeleteArticleRequest $request, Article $article)
     {
-        $article = Article::find($id);
-
-        if (! $article) {
-            return response()->json([
-                'message' => 'Article not found.',
-            ], 404);
-        }
-
-        if ($article->user_id !== $request->user()->id) {
-            return response()->json([
-                'message' => 'Unauthorized.',
-            ], 403);
-        }
-
         $article->delete();
 
         $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($id);
+        $this->cacheService->forgetDetail($article->id);
 
         return response()->json([
             'message' => 'Article deleted successfully.',

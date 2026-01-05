@@ -23,7 +23,7 @@ Route::prefix('articles')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ArticleController::class, 'store']);
         Route::put('/{article}', [ArticleController::class, 'update']);
-        Route::delete('/{id}', [ArticleController::class, 'destroy']);
+        Route::delete('/{article}', [ArticleController::class, 'destroy']);
     });
 });
 
