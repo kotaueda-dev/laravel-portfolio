@@ -43,7 +43,9 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return new UserResource($user);
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(201);
     }
 
     #[OA\Delete(

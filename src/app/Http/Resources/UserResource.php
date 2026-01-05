@@ -35,9 +35,4 @@ class UserResource extends JsonResource
             'updated_at' => $this->updated_at,
         ];
     }
-
-    public function withResponse($request, $response)
-    {
-        $response->setStatusCode(201);
-    }
 }
