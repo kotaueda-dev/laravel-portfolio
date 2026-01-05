@@ -8,9 +8,11 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
@@ -81,7 +83,9 @@ class AuthController extends Controller
 
         // パスワードチェック
         if (! Hash::check($request->password, $user->password)) {
-            abort(422);
+            throw ValidationException::withMessages([
+                'password' => ['The provided password is incorrect.'],
+            ]);
         }
 
         $user->delete();
@@ -131,7 +135,7 @@ class AuthController extends Controller
         $credentials = $request->validated();
 
         if (! Auth::attempt($credentials)) {
-            abort(401);
+            throw new AuthenticationException;
         }
 
         $user = Auth::user();
