@@ -3,7 +3,21 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'IndexArticleRequest',
+    description: '記事一覧取得用のクエリパラメータ',
+    properties: [
+        new OA\Property(
+            property: 'page',
+            description: 'ページ番号（1以上）。未指定の場合は1ページ目を返却。',
+            type: 'integer',
+            minimum: 1,
+            nullable: true,
+        ),
+    ],
+)]
 class IndexArticleRequest extends FormRequest
 {
     /**
