@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Article\IndexArticleRequest;
+use App\Http\Requests\StoreArticleRequest;
 use App\Http\Resources\ArticleListResource;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
@@ -64,7 +64,7 @@ class ArticleController extends Controller
         summary: '記事を投稿する',
         security: [['sanctum' => []]],
         tags: ['Articles'],
-        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/ArticleStoreRequest'),
+        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/StoreArticleRequest'),
         responses: [
             new OA\Response(
                 response: 201,
@@ -93,12 +93,9 @@ class ArticleController extends Controller
                 ref: '#/components/responses/422_ValidationError'),
         ]
     )]
-    public function store(Request $request)
+    public function store(StoreArticleRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-        ]);
+        $validatedData = $request->validated();
 
         $article = Article::create([
             'title' => $validatedData['title'],

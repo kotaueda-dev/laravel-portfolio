@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use OpenApi\Attributes as OA;
 
 #[OA\RequestBody(
-    request: 'ArticleStoreRequest',
+    request: 'StoreArticleRequest',
     required: true,
     content: new OA\JsonContent(
         required: ['title', 'content'],
@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
         ]
     )
 )]
-class ArticleStoreRequest extends FormRequest
+class StoreArticleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
