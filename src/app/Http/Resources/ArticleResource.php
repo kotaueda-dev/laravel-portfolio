@@ -37,6 +37,7 @@ class ArticleResource extends JsonResource
             'like' => $this->like,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'comments' => $this->whenLoaded('comments'),
         ];
     }
 }
