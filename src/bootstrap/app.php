@@ -1,8 +1,13 @@
 <?php
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,6 +18,43 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
+    ->withExceptions(function (Exceptions $exceptions) {
+        // 全ての例外をJSONで返したい場合（API専用サーバーなら）
+        $exceptions->shouldRenderJsonWhen(fn ($request, $e) => $request->is('api/*'));
+
+        // 401: AuthenticationException (認証エラー)
+        $exceptions->render(function (AuthenticationException $e) {
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Unauthenticated.(exception)',
+            ], 401);
+        });
+
+        // 403: AccessDeniedHttpException (権限エラー)
+        $exceptions->render(function (AccessDeniedHttpException $e) {
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Unauthorized.(exception)',
+            ], 403);
+        });
+
+        // 404: NotFoundHttpException (リソースなし)
+        $exceptions->render(function (NotFoundHttpException $e) {
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Not found.(exception)',
+            ], 404);
+        });
+
+        // 422: ValidationException (バリデーションエラー)
+        $exceptions->render(function (ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.(exception)',
+                'errors' => $e->errors(),
+            ], 422);
+        });
+
+        // 400: その他 BadRequest
+        $exceptions->render(function (BadRequestHttpException $e) {
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Invalid parameter.(exception)',
+            ], 400);
+        });
     })->create();

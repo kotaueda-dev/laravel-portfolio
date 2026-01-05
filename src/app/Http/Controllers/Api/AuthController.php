@@ -3,10 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\DeleteAccountRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
@@ -17,67 +23,21 @@ class AuthController extends Controller
         tags: ['Auth'],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['name', 'email', 'password'],
-                properties: [
-                    new OA\Property(
-                        property: 'name',
-                        type: 'string',
-                        description: 'ユーザー名',
-                        maxLength: 255,
-                        example: 'Taro Yamada'
-                    ),
-                    new OA\Property(
-                        property: 'email',
-                        type: 'string',
-                        format: 'email',
-                        description: 'メールアドレス',
-                        maxLength: 255,
-                        example: 'user@example.com'
-                    ),
-                    new OA\Property(
-                        property: 'password',
-                        type: 'string',
-                        format: 'password',
-                        description: 'パスワード',
-                        minLength: 8,
-                        example: 'password123'
-                    ),
-                ]
-            )
+            description: 'ユーザー登録情報',
+            content: new OA\JsonContent(ref: '#/components/schemas/RegisterRequest')
         ),
         responses: [
             new OA\Response(
                 response: 201,
                 description: 'ユーザー登録成功',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: 'message',
-                            type: 'string',
-                            example: 'User registered successfully.'
-                        ),
-                        new OA\Property(
-                            property: 'user',
-                            ref: '#/components/schemas/User'
-                        ),
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/UserResource')
             ),
-            new OA\Response(
-                response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
             'name' => $validated['name'],
@@ -85,7 +45,9 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(201);
     }
 
     #[OA\Delete(
@@ -93,6 +55,10 @@ class AuthController extends Controller
         summary: 'ユーザーアカウントを削除する',
         security: [['sanctum' => []]],
         tags: ['Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/DeleteAccountRequest')
+        ),
         responses: [
             new OA\Response(
                 response: 200,
@@ -107,29 +73,26 @@ class AuthController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthenticated')
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'ユーザーが見つかりません',
-                content: new OA\JsonContent(ref: '#/components/schemas/NotFound')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
-    public function deleteAccount()
+    public function deleteAccount(DeleteAccountRequest $request)
     {
         $user = Auth::user();
 
-        if ($user) {
-            $user->delete();
-
-            return response()->json(['message' => 'Account deleted successfully.'], 200);
+        // パスワードチェック
+        if (! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ['The provided password is incorrect.'],
+            ]);
         }
 
-        return response()->json(['message' => 'User not found'], 404);
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Account deleted successfully.',
+        ], 200);
     }
 
     #[OA\Post(
@@ -138,27 +101,7 @@ class AuthController extends Controller
         tags: ['Auth'],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['email', 'password'],
-                properties: [
-                    new OA\Property(
-                        property: 'email',
-                        type: 'string',
-                        format: 'email',
-                        description: 'メールアドレス',
-                        maxLength: 255,
-                        example: 'user@example.com'
-                    ),
-                    new OA\Property(
-                        property: 'password',
-                        type: 'string',
-                        format: 'password',
-                        description: 'パスワード',
-                        minLength: 8,
-                        example: 'password123'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/LoginRequest')
         ),
         responses: [
             new OA\Response(
@@ -172,34 +115,27 @@ class AuthController extends Controller
                             example: 'Logged in successfully.'
                         ),
                         new OA\Property(
-                            property: 'token',
+                            property: 'access_token',
                             type: 'string',
                             example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...'
+                        ),
+                        new OA\Property(
+                            property: 'user',
+                            ref: '#/components/schemas/UserResource'
                         ),
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'バリデーションエラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->validated();
 
         if (! Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            throw new AuthenticationException;
         }
 
         $user = Auth::user();
@@ -207,7 +143,8 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Logged in successfully.',
-            'token' => $token,
+            'access_token' => $token,
+            'user' => new UserResource($user),
         ], 200);
     }
 
@@ -230,11 +167,7 @@ class AuthController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 401,
-                description: '認証エラー',
-                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
         ]
     )]
     public function logout(Request $request)

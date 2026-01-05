@@ -30,10 +30,7 @@ class SignUpTest extends TestCase
             ->assertValidRequest()
             ->assertValidResponse(201);
         $response->assertJsonStructure([
-            'message',
-            'user' => [
-                'id', 'name', 'email', 'created_at', 'updated_at',
-            ],
+            'id', 'name', 'email', 'created_at', 'updated_at',
         ]);
 
         $this->assertDatabaseHas('users', [

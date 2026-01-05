@@ -21,9 +21,13 @@ class DeleteAccountTest extends TestCase
     #[Test]
     public function it_deletes_an_authenticated_user_account()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'password' => bcrypt('password123'),
+        ]);
 
-        $response = $this->actingAs($user)->deleteJson('/api/user');
+        $response = $this->actingAs($user)->deleteJson('/api/user', [
+            'password' => 'password123',
+        ]);
 
         $response
             ->assertValidRequest()
@@ -41,7 +45,6 @@ class DeleteAccountTest extends TestCase
         $response = $this->deleteJson('/api/user');
 
         $response
-            ->assertValidRequest()
             ->assertValidResponse(401);
     }
 }
