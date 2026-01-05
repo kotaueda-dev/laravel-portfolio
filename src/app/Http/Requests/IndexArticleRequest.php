@@ -20,6 +20,13 @@ use OpenApi\Attributes as OA;
 )]
 class IndexArticleRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'page' => $this->query('page', 1),
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */

@@ -51,7 +51,7 @@ class ArticleController extends Controller
     )]
     public function index(IndexArticleRequest $request)
     {
-        $page = $request->validated('page', 1);
+        $page = $request->validated('page');
 
         $articles = $this->cacheService->rememberList($page, function () {
             return Article::paginate(config('pagination.default_per_page'));
