@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexArticleRequest;
 use App\Http\Requests\StoreArticleRequest;
+use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Resources\ArticleListResource;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
@@ -197,7 +198,7 @@ class ArticleController extends Controller
         parameters: [
             new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
         ],
-        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/StoreArticleRequest'),
+        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/UpdateArticleRequest'),
         responses: [
             new OA\Response(
                 response: 200,
@@ -221,31 +222,14 @@ class ArticleController extends Controller
             new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
-    public function update(Request $request, string $id)
+    public function update(UpdateArticleRequest $request, Article $article)
     {
-        $article = Article::find($id);
-
-        if (! $article) {
-            return response()->json([
-                'message' => 'Article not found.',
-            ], 404);
-        }
-
-        if ($article->user_id !== $request->user()->id) {
-            return response()->json([
-                'message' => 'Unauthorized.',
-            ], 403);
-        }
-
-        $validatedData = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'content' => 'sometimes|required|string',
-        ]);
+        $validatedData = $request->validated();
 
         $article->update($validatedData);
 
         $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($id);
+        $this->cacheService->forgetDetail($article->id);
 
         return response()->json([
             'message' => 'Article updated successfully.',
