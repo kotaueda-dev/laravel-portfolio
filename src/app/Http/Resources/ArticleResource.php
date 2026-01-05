@@ -18,6 +18,22 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', example: '2025-12-23T07:54:58.000000Z'),
     ]
 )]
+
+#[OA\Schema(
+    schema: 'ArticleWithCommentsResource',
+    allOf: [
+        new OA\Schema(ref: '#/components/schemas/ArticleResource'),
+        new OA\Schema(
+            properties: [
+                new OA\Property(
+                    property: 'comments',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/CommentResource')
+                ),
+            ]
+        ),
+    ]
+)]
 class ArticleResource extends JsonResource
 {
     public static $wrap = null;

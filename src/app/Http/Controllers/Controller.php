@@ -22,22 +22,6 @@ use OpenApi\Attributes as OA;
 #[OA\Components(
     schemas: [
         new OA\Schema(
-            schema: 'ArticleWithComments',
-            properties: [
-                new OA\Property(ref: '#/components/schemas/ArticleResource'),
-                // comments部分は配列として定義
-                new OA\Property(
-                    property: 'comments',
-                    type: 'array',
-                    items: new OA\Items(
-                        properties: [
-                            new OA\Property(ref: '#/components/schemas/CommentResource'),
-                        ]
-                    )
-                ),
-            ]
-        ),
-        new OA\Schema(
             schema: 'PaginationLinks',
             properties: [
                 new OA\Property(property: 'first', type: 'string', example: 'http://localhost:8000/api/articles?page=1'),

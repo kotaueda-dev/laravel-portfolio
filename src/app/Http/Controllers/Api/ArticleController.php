@@ -125,7 +125,7 @@ class ArticleController extends Controller
             new OA\Response(
                 response: 200,
                 description: '成功',
-                content: new OA\JsonContent(ref: '#/components/schemas/ArticleWithComments')
+                content: new OA\JsonContent(ref: '#/components/schemas/ArticleWithCommentsResource')
             ),
             new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
