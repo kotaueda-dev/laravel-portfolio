@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DeleteArticleRequest;
 use App\Http\Requests\IndexArticleRequest;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
@@ -11,6 +10,8 @@ use App\Http\Resources\ArticleListResource;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
 
 class ArticleController extends Controller
@@ -224,6 +225,8 @@ class ArticleController extends Controller
     )]
     public function update(UpdateArticleRequest $request, Article $article)
     {
+        Gate::authorize('update', $article);
+
         $validatedData = $request->validated();
 
         $article->update($validatedData);
@@ -265,8 +268,10 @@ class ArticleController extends Controller
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function destroy(DeleteArticleRequest $request, Article $article)
+    public function destroy(Request $request, Article $article)
     {
+        Gate::authorize('delete', $article);
+
         $article->delete();
 
         $this->cacheService->forgetAllList();
