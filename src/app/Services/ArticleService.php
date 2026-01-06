@@ -9,28 +9,23 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ArticleService
 {
     public function __construct(
-        private ArticleRepository $repository,
-        private ArticleCacheService $cacheService
+        private ArticleRepository $repository
     ) {}
 
     /**
-     * ページネーション付きで全記事を取得（キャッシュ付き）
+     * ページネーション付きで全記事を取得
      */
     public function getAllArticles(int $page): LengthAwarePaginator
     {
-        return $this->cacheService->rememberList($page, function () use ($page) {
-            return $this->repository->getAllPaginated($page, config('pagination.default_per_page'));
-        });
+        return $this->repository->getAllPaginated($page, config('pagination.default_per_page'));
     }
 
     /**
-     * IDで記事を取得（コメント付き、キャッシュ付き）
+     * IDで記事を取得（コメント付き）
      */
     public function getArticleWithComments(int $id): ?Article
     {
-        return $this->cacheService->rememberDetail($id, function () use ($id) {
-            return $this->repository->getWithComments($id);
-        });
+        return $this->repository->getWithComments($id);
     }
 
     /**

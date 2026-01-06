@@ -3,16 +3,26 @@
 namespace App\Repositories;
 
 use App\Models\Article;
+use App\Services\ArticleCacheService;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArticleRepository
 {
+    protected $cacheService;
+
+    public function __construct(ArticleCacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     /**
      * ページネーション付きで全記事を取得
      */
     public function getAllPaginated(int $page, int $perPage = 15): LengthAwarePaginator
     {
-        return Article::paginate($perPage, ['*'], 'page', $page);
+        return $this->cacheService->rememberList($page, function () use ($page, $perPage) {
+            return Article::paginate($perPage, ['*'], 'page', $page);
+        });
     }
 
     /**
@@ -20,7 +30,9 @@ class ArticleRepository
      */
     public function getWithComments(int $id): ?Article
     {
-        return Article::with('comments')->find($id);
+        return $this->cacheService->rememberDetail($id, function () use ($id) {
+            return Article::with('comments')->find($id);
+        });
     }
 
     /**
@@ -36,7 +48,9 @@ class ArticleRepository
      */
     public function create(array $data): Article
     {
-        return Article::create($data);
+        $article = Article::create($data);
+
+        return $article;
     }
 
     /**
@@ -44,7 +58,9 @@ class ArticleRepository
      */
     public function update(Article $article, array $data): bool
     {
-        return $article->update($data);
+        $result = $article->update($data);
+
+        return $result;
     }
 
     /**
@@ -62,6 +78,8 @@ class ArticleRepository
      */
     public function delete(Article $article): bool
     {
-        return $article->delete();
+        $result = $article->delete();
+
+        return $result;
     }
 }
