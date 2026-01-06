@@ -11,6 +11,7 @@ use App\Http\Resources\ArticleListResource;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
+use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
 
 class ArticleController extends Controller
@@ -224,6 +225,8 @@ class ArticleController extends Controller
     )]
     public function update(UpdateArticleRequest $request, Article $article)
     {
+        Gate::authorize('update', $article);
+
         $validatedData = $request->validated();
 
         $article->update($validatedData);
@@ -267,6 +270,8 @@ class ArticleController extends Controller
     )]
     public function destroy(DeleteArticleRequest $request, Article $article)
     {
+        Gate::authorize('delete', $article);
+
         $article->delete();
 
         $this->cacheService->forgetAllList();

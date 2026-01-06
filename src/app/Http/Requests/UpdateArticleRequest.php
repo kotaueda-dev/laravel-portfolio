@@ -22,9 +22,7 @@ class UpdateArticleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $article = $this->route('article');
-
-        return $article->user_id === $this->user()->id;
+        return true;
     }
 
     /**

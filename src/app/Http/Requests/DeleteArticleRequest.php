@@ -11,9 +11,7 @@ class DeleteArticleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $article = $this->route('article');
-
-        return $article && $article->user_id === $this->user()->id;
+        return true;
     }
 
     /**

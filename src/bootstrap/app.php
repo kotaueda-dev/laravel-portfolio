@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,28 +26,33 @@ return Application::configure(basePath: dirname(__DIR__))
         // 401: AuthenticationException (認証エラー)
         $exceptions->render(function (AuthenticationException $e) {
             return response()->json([
-                'message' => $e->getMessage() ?: 'Unauthenticated.(exception)',
+                'message' => 'Unauthenticated.',
             ], 401);
         });
 
         // 403: AccessDeniedHttpException (権限エラー)
-        $exceptions->render(function (AccessDeniedHttpException $e) {
+        $exceptions->render(function (AccessDeniedHttpException $e, $request) {
             return response()->json([
-                'message' => $e->getMessage() ?: 'Unauthorized.(exception)',
+                'message' => 'Unauthorized.',
+            ], 403);
+        });
+        $exceptions->render(function (AuthorizationException $e) {
+            return response()->json([
+                'message' => 'Unauthorized.',
             ], 403);
         });
 
         // 404: NotFoundHttpException (リソースなし)
         $exceptions->render(function (NotFoundHttpException $e) {
             return response()->json([
-                'message' => $e->getMessage() ?: 'Not found.(exception)',
+                'message' => 'Not found.',
             ], 404);
         });
 
         // 422: ValidationException (バリデーションエラー)
         $exceptions->render(function (ValidationException $e) {
             return response()->json([
-                'message' => 'The given data was invalid.(exception)',
+                'message' => 'The given data was invalid.',
                 'errors' => $e->errors(),
             ], 422);
         });
@@ -54,7 +60,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // 400: その他 BadRequest
         $exceptions->render(function (BadRequestHttpException $e) {
             return response()->json([
-                'message' => $e->getMessage() ?: 'Invalid parameter.(exception)',
+                'message' => 'Invalid parameter.',
             ], 400);
         });
     })->create();
