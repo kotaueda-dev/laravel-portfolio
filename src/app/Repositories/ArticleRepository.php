@@ -50,6 +50,8 @@ class ArticleRepository
     {
         $article = Article::create($data);
 
+        $this->cacheService->forgetAllList();
+
         return $article;
     }
 
@@ -59,6 +61,9 @@ class ArticleRepository
     public function update(Article $article, array $data): bool
     {
         $result = $article->update($data);
+
+        $this->cacheService->forgetAllList();
+        $this->cacheService->forgetDetail($article->id);
 
         return $result;
     }
@@ -70,6 +75,9 @@ class ArticleRepository
     {
         $article->increment('like');
 
+        $this->cacheService->forgetAllList();
+        $this->cacheService->forgetDetail($article->id);
+
         return $article->like;
     }
 
@@ -79,6 +87,9 @@ class ArticleRepository
     public function delete(Article $article): bool
     {
         $result = $article->delete();
+
+        $this->cacheService->forgetAllList();
+        $this->cacheService->forgetDetail($article->id);
 
         return $result;
     }
