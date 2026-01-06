@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         // 403: AccessDeniedHttpException (権限エラー)
-        $exceptions->render(function (AccessDeniedHttpException $e, $request) {
+        $exceptions->render(function (AccessDeniedHttpException $e) {
             return response()->json([
                 'message' => 'Unauthorized.',
             ], 403);
