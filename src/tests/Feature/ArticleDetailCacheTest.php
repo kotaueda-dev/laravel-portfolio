@@ -43,8 +43,10 @@ class ArticleDetailCacheTest extends TestCase
         $this->assertEquals($cached1->title, $originalTitle);
         $this->assertEquals($response1->json('title'), $originalTitle);
 
-        // 2. DBを直接更新してキャッシュが古いままであることを確認
-        $article->update(['title' => 'DB Direct Update Title']);
+        // 2. DBを直接更新（オブザーバーを無視）してキャッシュが古いままであることを確認
+        Article::withoutEvents(function () use ($article) {
+            $article->update(['title' => 'DB Direct Update Title']);
+        });
 
         $response2 = $this->getJson("/api/articles/{$article->id}");
         $response2->assertStatus(200);

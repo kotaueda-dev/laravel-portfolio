@@ -9,19 +9,14 @@ use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Resources\ArticleListResource;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
-use App\Services\ArticleCacheService;
+use App\Services\ArticleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
 
 class ArticleController extends Controller
 {
-    protected ArticleCacheService $cacheService;
-
-    public function __construct(ArticleCacheService $cacheService)
-    {
-        $this->cacheService = $cacheService;
-    }
+    public function __construct(private ArticleService $articleService) {}
 
     // 記事一覧の取得
     #[OA\Get(
@@ -53,10 +48,7 @@ class ArticleController extends Controller
     public function index(IndexArticleRequest $request)
     {
         $page = $request->validated('page');
-
-        $articles = $this->cacheService->rememberList($page, function () use ($page) {
-            return Article::paginate(config('pagination.default_per_page'), ['*'], 'page', $page);
-        });
+        $articles = $this->articleService->getAllArticles($page);
 
         return ArticleListResource::collection($articles);
     }
@@ -100,13 +92,11 @@ class ArticleController extends Controller
     {
         $validatedData = $request->validated();
 
-        $article = Article::create([
+        $article = $this->articleService->createArticle([
             'title' => $validatedData['title'],
             'content' => $validatedData['content'],
             'user_id' => $request->user()->id,
         ]);
-
-        $this->cacheService->forgetAllList();
 
         return response()->json([
             'message' => 'Article created successfully.',
@@ -134,9 +124,7 @@ class ArticleController extends Controller
     )]
     public function show(Article $article)
     {
-        $article = $this->cacheService->rememberDetail($article->id, function () use ($article) {
-            return Article::with('comments')->find($article->id);
-        });
+        $article = $this->articleService->getArticleWithComments($article->id);
 
         return new ArticleResource($article);
     }
@@ -178,15 +166,12 @@ class ArticleController extends Controller
     )]
     public function like(Article $article)
     {
-        $article->increment('like');
-
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
+        $like = $this->articleService->incrementArticleLike($article);
 
         return response()->json([
             'message' => "Article {$article->id} liked successfully.",
             'article_id' => (int) $article->id,
-            'like' => $article->like,
+            'like' => $like,
         ]);
     }
 
@@ -228,11 +213,7 @@ class ArticleController extends Controller
         Gate::authorize('update', $article);
 
         $validatedData = $request->validated();
-
-        $article->update($validatedData);
-
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
+        $this->articleService->updateArticle($article, $validatedData);
 
         return response()->json([
             'message' => 'Article updated successfully.',
@@ -272,10 +253,7 @@ class ArticleController extends Controller
     {
         Gate::authorize('delete', $article);
 
-        $article->delete();
-
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
+        $this->articleService->deleteArticle($article);
 
         return response()->json([
             'message' => 'Article deleted successfully.',
