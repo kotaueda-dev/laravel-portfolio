@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\LogContextMiddleware;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -17,7 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->api(append: [
+            LogContextMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // 全ての例外をJSONで返したい場合（API専用サーバーなら）

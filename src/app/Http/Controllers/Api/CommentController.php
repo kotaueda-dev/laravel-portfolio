@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Services\ArticleCacheService;
+use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
 class CommentController extends Controller
@@ -41,12 +42,19 @@ class CommentController extends Controller
     )]
     public function store(StoreCommentRequest $request, Article $article)
     {
+        Log::info('記事へのコメント投稿を開始します。', ['article_id' => $article->id]);
+
         $validatedData = $request->validated();
 
         $comment = $article->comments()->create($validatedData);
 
         $this->cacheService->forgetAllList();
         $this->cacheService->forgetDetail($article->id);
+
+        Log::info('記事へのコメント投稿が完了しました。', [
+            'article_id' => $article->id,
+            'comment_id' => $comment->id,
+        ]);
 
         return (new CommentResource($comment))
             ->response()

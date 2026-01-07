@@ -12,6 +12,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
@@ -37,6 +38,8 @@ class AuthController extends Controller
     )]
     public function register(RegisterRequest $request)
     {
+        Log::info('ユーザー登録を開始します。');
+
         $validated = $request->validated();
 
         $user = User::create([
@@ -44,6 +47,8 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
+
+        Log::info('ユーザー登録が完了しました。', ['user_id' => $user->id]);
 
         return (new UserResource($user))
             ->response()
@@ -79,16 +84,22 @@ class AuthController extends Controller
     )]
     public function deleteAccount(DeleteAccountRequest $request)
     {
+        Log::info('ユーザーアカウント削除を開始します。', ['user_id' => Auth::id()]);
+
         $user = Auth::user();
+        $userId = $user->id;
 
         // パスワードチェック
         if (! Hash::check($request->password, $user->password)) {
+            Log::warning('ユーザーアカウント削除に失敗しました。パスワードが不正です。', ['user_id' => $userId]);
             throw ValidationException::withMessages([
                 'password' => ['The provided password is incorrect.'],
             ]);
         }
 
         $user->delete();
+
+        Log::info('ユーザーアカウント削除が完了しました。', ['user_id' => $userId]);
 
         return response()->json([
             'message' => 'Account deleted successfully.',
@@ -132,14 +143,19 @@ class AuthController extends Controller
     )]
     public function login(LoginRequest $request)
     {
+        Log::info('ユーザーログインを試行します。');
+
         $credentials = $request->validated();
 
         if (! Auth::attempt($credentials)) {
+            Log::warning('ユーザーログインに失敗しました。認証情報が不正です。');
             throw new AuthenticationException;
         }
 
         $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        Log::info('ユーザーログインに成功しました。', ['user_id' => $user->id]);
 
         return response()->json([
             'message' => 'Logged in successfully.',
@@ -172,7 +188,13 @@ class AuthController extends Controller
     )]
     public function logout(Request $request)
     {
+        $userId = Auth::id();
+
+        Log::info('ユーザーログアウトを試行します。', ['user_id' => $userId]);
+
         $request->user()->currentAccessToken()->delete();
+
+        Log::info('ユーザーログアウトに成功しました。', ['user_id' => $userId]);
 
         return response()->json([
             'message' => 'Logged out successfully.',
