@@ -5,10 +5,13 @@ namespace Tests\Unit;
 use App\Models\Article;
 use App\Models\User;
 use App\Policies\ArticlePolicy;
-use PHPUnit\Framework\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ArticlePolicyTest extends TestCase
 {
+    use RefreshDatabase;
+
     private ArticlePolicy $policy;
 
     protected function setUp(): void
@@ -22,11 +25,8 @@ class ArticlePolicyTest extends TestCase
      */
     public function test_user_can_update_own_article(): void
     {
-        $user = new User;
-        $user->id = 1;
-
-        $article = new Article;
-        $article->user_id = 1;
+        $user = User::factory()->create();
+        $article = Article::factory()->create(['user_id' => $user->id]);
 
         $result = $this->policy->update($user, $article);
 
@@ -38,11 +38,9 @@ class ArticlePolicyTest extends TestCase
      */
     public function test_user_cannot_update_other_user_article(): void
     {
-        $user = new User;
-        $user->id = 1;
-
-        $article = new Article;
-        $article->user_id = 2;
+        $user = User::factory()->create();
+        $user_2 = User::factory()->create();
+        $article = Article::factory()->create(['user_id' => $user_2->id]);
 
         $result = $this->policy->update($user, $article);
 
@@ -54,11 +52,8 @@ class ArticlePolicyTest extends TestCase
      */
     public function test_user_can_delete_own_article(): void
     {
-        $user = new User;
-        $user->id = 1;
-
-        $article = new Article;
-        $article->user_id = 1;
+        $user = User::factory()->create();
+        $article = Article::factory()->create(['user_id' => $user->id]);
 
         $result = $this->policy->delete($user, $article);
 
@@ -70,11 +65,9 @@ class ArticlePolicyTest extends TestCase
      */
     public function test_user_cannot_delete_other_user_article(): void
     {
-        $user = new User;
-        $user->id = 1;
-
-        $article = new Article;
-        $article->user_id = 2;
+        $user = User::factory()->create();
+        $user_2 = User::factory()->create();
+        $article = Article::factory()->create(['user_id' => $user_2->id]);
 
         $result = $this->policy->delete($user, $article);
 
