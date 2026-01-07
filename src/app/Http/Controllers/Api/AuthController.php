@@ -87,10 +87,11 @@ class AuthController extends Controller
         Log::info('ユーザーアカウント削除を開始します。', ['user_id' => Auth::id()]);
 
         $user = Auth::user();
+        $userId = $user->id;
 
         // パスワードチェック
         if (! Hash::check($request->password, $user->password)) {
-            Log::warning('ユーザーアカウント削除に失敗しました。パスワードが不正です。', ['user_id' => $user->id]);
+            Log::warning('ユーザーアカウント削除に失敗しました。パスワードが不正です。', ['user_id' => $userId]);
             throw ValidationException::withMessages([
                 'password' => ['The provided password is incorrect.'],
             ]);
@@ -98,7 +99,7 @@ class AuthController extends Controller
 
         $user->delete();
 
-        Log::info('ユーザーアカウント削除が完了しました。', ['user_id' => $user->id]);
+        Log::info('ユーザーアカウント削除が完了しました。', ['user_id' => $userId]);
 
         return response()->json([
             'message' => 'Account deleted successfully.',
@@ -187,11 +188,13 @@ class AuthController extends Controller
     )]
     public function logout(Request $request)
     {
-        Log::info('ユーザーログアウトを試行します。', ['user_id' => Auth::id()]);
+        $userId = Auth::id();
+
+        Log::info('ユーザーログアウトを試行します。', ['user_id' => $userId]);
 
         $request->user()->currentAccessToken()->delete();
 
-        Log::info('ユーザーログアウトに成功しました。', ['user_id' => Auth::id()]);
+        Log::info('ユーザーログアウトに成功しました。', ['user_id' => $userId]);
 
         return response()->json([
             'message' => 'Logged out successfully.',

@@ -44,7 +44,10 @@ class ArticleService
             return $this->repository->getWithComments($id);
         });
 
-        Log::info('記事詳細の取得が完了しました。', ['target_id' => $id]);
+        Log::info('記事詳細の取得が完了しました。', [
+            'target_id' => $id,
+            'found' => $article ? true : false,
+        ]);
 
         return $article;
     }
