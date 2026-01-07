@@ -3,26 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\Article;
-use App\Services\ArticleCacheService;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArticleRepository
 {
-    protected $cacheService;
-
-    public function __construct(ArticleCacheService $cacheService)
-    {
-        $this->cacheService = $cacheService;
-    }
-
     /**
      * ページネーション付きで全記事を取得
      */
     public function getAllPaginated(int $page, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->cacheService->rememberList($page, function () use ($page, $perPage) {
-            return Article::paginate($perPage, ['*'], 'page', $page);
-        });
+        return Article::paginate($perPage, ['*'], 'page', $page);
     }
 
     /**
@@ -30,9 +20,8 @@ class ArticleRepository
      */
     public function getWithComments(int $id): ?Article
     {
-        return $this->cacheService->rememberDetail($id, function () use ($id) {
-            return Article::with('comments')->find($id);
-        });
+        return Article::with('comments')->find($id);
+
     }
 
     /**
@@ -50,8 +39,6 @@ class ArticleRepository
     {
         $article = Article::create($data);
 
-        $this->cacheService->forgetAllList();
-
         return $article;
     }
 
@@ -61,9 +48,6 @@ class ArticleRepository
     public function update(Article $article, array $data): bool
     {
         $result = $article->update($data);
-
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
 
         return $result;
     }
@@ -75,9 +59,6 @@ class ArticleRepository
     {
         $article->increment('like');
 
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
-
         return $article->like;
     }
 
@@ -87,9 +68,6 @@ class ArticleRepository
     public function delete(Article $article): bool
     {
         $result = $article->delete();
-
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
 
         return $result;
     }

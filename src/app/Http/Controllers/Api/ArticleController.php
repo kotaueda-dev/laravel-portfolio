@@ -48,7 +48,7 @@ class ArticleController extends Controller
     public function index(IndexArticleRequest $request)
     {
         $page = $request->validated('page');
-        $articles = $this->articleService->getAllArticles($page);
+        $articles = $this->articleService->getAllArticles($page, config('pagination.default_per_page'));
 
         return ArticleListResource::collection($articles);
     }
