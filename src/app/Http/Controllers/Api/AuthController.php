@@ -48,11 +48,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        Log::info('ユーザー登録が完了しました。', [
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_email' => $user->email,
-        ]);
+        Log::info('ユーザー登録が完了しました。', ['user_id' => $user->id]);
 
         return (new UserResource($user))
             ->response()
@@ -94,6 +90,7 @@ class AuthController extends Controller
 
         // パスワードチェック
         if (! Hash::check($request->password, $user->password)) {
+            Log::warning('ユーザーアカウント削除に失敗しました。パスワードが不正です。', ['user_id' => $user->id]);
             throw ValidationException::withMessages([
                 'password' => ['The provided password is incorrect.'],
             ]);
@@ -145,11 +142,12 @@ class AuthController extends Controller
     )]
     public function login(LoginRequest $request)
     {
-        Log::info('ユーザーログインを試行します。', ['email' => $request->input('email')]);
+        Log::info('ユーザーログインを試行します。');
 
         $credentials = $request->validated();
 
         if (! Auth::attempt($credentials)) {
+            Log::warning('ユーザーログインに失敗しました。認証情報が不正です。');
             throw new AuthenticationException;
         }
 

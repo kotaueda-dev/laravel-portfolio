@@ -60,10 +60,7 @@ class ArticleService
 
         $article = $this->repository->create($data);
 
-        Log::info('記事の作成が完了しました。', [
-            'article_id' => $article->id,
-            'title' => $article->title,
-        ]);
+        Log::info('記事の作成が完了しました。', ['article_id' => $article->id]);
 
         return $article;
     }
@@ -73,20 +70,14 @@ class ArticleService
      */
     public function updateArticle(Article $article, array $data): bool
     {
-        Log::info('記事の更新を開始します。', [
-            'article_id' => $article->id,
-            'title' => $data['title'] ?? $article->title,
-        ]);
+        Log::info('記事の更新を開始します。', ['article_id' => $article->id]);
 
         $this->cacheService->forgetAllList();
         $this->cacheService->forgetDetail($article->id);
 
         $result = $this->repository->update($article, $data);
 
-        Log::info('記事の更新が完了しました。', [
-            'article_id' => $article->id,
-            'success' => $result,
-        ]);
+        Log::info('記事の更新が完了しました。', ['article_id' => $article->id]);
 
         return $result;
     }

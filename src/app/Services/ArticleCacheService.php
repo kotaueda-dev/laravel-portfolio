@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Helpers\CacheKeyHelper;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ArticleCacheService
 {
@@ -24,6 +25,8 @@ class ArticleCacheService
     public function forgetAllList(): void
     {
         Cache::tags(CacheKeyHelper::articleListTag())->flush();
+
+        Log::info('記事一覧のキャッシュを削除しました。');
     }
 
     public function rememberDetail(string $id, callable $callback, int $ttl = 300): mixed
@@ -43,5 +46,7 @@ class ArticleCacheService
     public function forgetDetail(string $id): void
     {
         Cache::forget(CacheKeyHelper::articleDetailKey($id));
+
+        Log::info('記事詳細のキャッシュを削除しました。', ['article_id' => $id]);
     }
 }
