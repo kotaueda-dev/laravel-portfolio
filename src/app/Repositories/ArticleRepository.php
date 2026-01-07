@@ -59,7 +59,7 @@ class ArticleRepository
     {
         $article->increment('like');
 
-        return $article->like;
+        return $article->refresh()->like;
     }
 
     /**
