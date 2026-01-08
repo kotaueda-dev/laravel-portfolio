@@ -10,7 +10,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\GoneHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
+use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -61,15 +68,72 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 422);
         });
 
-        // 400: その他 BadRequest
+        // 400: Bad Request
         $exceptions->render(function (BadRequestHttpException $e) {
             return response()->json([
                 'message' => __('errors.invalid_parameter'),
             ], 400);
         });
 
+        // 405: Method Not Allowed
+        $exceptions->render(function (MethodNotAllowedHttpException $e) {
+            return response()->json([
+                'message' => __('errors.method_not_allowed'),
+            ], 405);
+        });
+
+        // 409: Conflict
+        $exceptions->render(function (ConflictHttpException $e) {
+            return response()->json([
+                'message' => __('errors.conflict'),
+            ], 409);
+        });
+
+        // 410: Gone
+        $exceptions->render(function (GoneHttpException $e) {
+            return response()->json([
+                'message' => __('errors.gone'),
+            ], 410);
+        });
+
+        // 415: Unsupported Media Type
+        $exceptions->render(function (UnsupportedMediaTypeHttpException $e) {
+            return response()->json([
+                'message' => __('errors.unsupported_media_type'),
+            ], 415);
+        });
+
+        // 429: Too Many Requests
+        $exceptions->render(function (TooManyRequestsHttpException $e) {
+            return response()->json([
+                'message' => __('errors.too_many_requests'),
+            ], 429);
+        });
+
+        // その他の汎用HTTP例外
+        $exceptions->render(function (HttpException $e) {
+            $statusCode = $e->getStatusCode();
+            $messageKey = match ($statusCode) {
+                401 => 'errors.unauthenticated',
+                403 => 'errors.unauthorized',
+                404 => 'errors.not_found',
+                405 => 'errors.method_not_allowed',
+                408 => 'errors.request_timeout',
+                409 => 'errors.conflict',
+                410 => 'errors.gone',
+                413 => 'errors.payload_too_large',
+                415 => 'errors.unsupported_media_type',
+                429 => 'errors.too_many_requests',
+                503 => 'errors.service_unavailable',
+                default => 'errors.internal_error',
+            };
+
+            return response()->json([
+                'message' => __($messageKey),
+            ], $statusCode);
+        });
+
         $exceptions->render(function (Throwable $e) {
-            $isDebug = config('app.debug');
 
             Log::error('予期しない例外が発生しました。', [
                 'message' => $e->getMessage(),
@@ -80,8 +144,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return response()->json([
                 'message' => __('errors.internal_error'),
-                'error' => $isDebug ? $e->getMessage() : __('errors.internal_server_error'),
-                'type' => $isDebug ? get_class($e) : null,
             ], 500);
         });
     })->create();
