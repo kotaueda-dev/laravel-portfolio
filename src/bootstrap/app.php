@@ -29,33 +29,33 @@ return Application::configure(basePath: dirname(__DIR__))
         // 401: AuthenticationException (認証エラー)
         $exceptions->render(function (AuthenticationException $e) {
             return response()->json([
-                'message' => 'Unauthenticated.',
+                'message' => __('errors.unauthenticated'),
             ], 401);
         });
 
         // 403: AccessDeniedHttpException (権限エラー)
         $exceptions->render(function (AccessDeniedHttpException $e) {
             return response()->json([
-                'message' => 'Unauthorized.',
+                'message' => __('errors.unauthorized'),
             ], 403);
         });
         $exceptions->render(function (AuthorizationException $e) {
             return response()->json([
-                'message' => 'Unauthorized.',
+                'message' => __('errors.unauthorized'),
             ], 403);
         });
 
         // 404: NotFoundHttpException (リソースなし)
         $exceptions->render(function (NotFoundHttpException $e) {
             return response()->json([
-                'message' => 'Not found.',
+                'message' => __('errors.not_found'),
             ], 404);
         });
 
         // 422: ValidationException (バリデーションエラー)
         $exceptions->render(function (ValidationException $e) {
             return response()->json([
-                'message' => 'The given data was invalid.',
+                'message' => __('errors.validation_failed'),
                 'errors' => $e->errors(),
             ], 422);
         });
@@ -63,7 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // 400: その他 BadRequest
         $exceptions->render(function (BadRequestHttpException $e) {
             return response()->json([
-                'message' => 'Invalid parameter.',
+                'message' => __('errors.invalid_parameter'),
             ], 400);
         });
     })->create();
