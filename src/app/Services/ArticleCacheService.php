@@ -26,7 +26,7 @@ class ArticleCacheService
     {
         Cache::tags(CacheKeyHelper::articleListTag())->flush();
 
-        Log::info('記事一覧のキャッシュを削除しました。');
+        Log::debug('記事一覧のキャッシュを削除しました。');
     }
 
     public function rememberDetail(string $id, callable $callback, int $ttl = 300): mixed
@@ -47,6 +47,6 @@ class ArticleCacheService
     {
         Cache::forget(CacheKeyHelper::articleDetailKey($id));
 
-        Log::info('記事詳細のキャッシュを削除しました。', ['article_id' => $id]);
+        Log::debug('記事詳細のキャッシュを削除しました。', ['article_id' => $id]);
     }
 }
