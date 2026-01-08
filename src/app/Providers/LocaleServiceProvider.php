@@ -8,14 +8,6 @@ use Illuminate\Support\ServiceProvider;
 class LocaleServiceProvider extends ServiceProvider
 {
     /**
-     * Register services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
      * Bootstrap services.
      */
     public function boot(): void
@@ -25,19 +17,14 @@ class LocaleServiceProvider extends ServiceProvider
             return;
         }
 
+        // 対応言語リスト
+        $supportedLocales = ['ja', 'en'];
+
         $request = $this->app['request'];
 
         // Accept-Language ヘッダーから言語を取得
-        $locale = $request->getPreferredLanguage(['ja', 'en']);
+        $locale = $request->getPreferredLanguage($supportedLocales) ?? config('app.locale');
 
-        // 対応言語リスト
-        $supportedLocales = ['en', 'ja'];
-
-        // サポートされている言語かチェック
-        if (in_array($locale, $supportedLocales)) {
-            App::setLocale($locale);
-        } else {
-            App::setLocale(config('app.locale'));
-        }
+        App::setLocale($locale);
     }
 }
