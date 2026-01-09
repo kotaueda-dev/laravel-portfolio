@@ -20,7 +20,7 @@ class ArticleRepository
      */
     public function getWithComments(int $id): ?Article
     {
-        return Article::with('comments')->find($id);
+        return Article::with('comments')->findOrFail($id);
 
     }
 
@@ -55,8 +55,9 @@ class ArticleRepository
     /**
      * 記事のいいね数をインクリメント
      */
-    public function incrementLike(Article $article): int
+    public function incrementLike(int $id): int
     {
+        $article = Article::findOrFail($id);
         $article->increment('like');
 
         return $article->refresh()->like;

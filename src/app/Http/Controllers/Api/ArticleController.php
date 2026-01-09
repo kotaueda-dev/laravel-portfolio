@@ -106,11 +106,11 @@ class ArticleController extends Controller
 
     // 記事の取得
     #[OA\Get(
-        path: '/api/articles/{article}',
+        path: '/api/articles/{id}',
         summary: '指定した記事を取得する',
         tags: ['Articles'],
         parameters: [
-            new OA\PathParameter(ref: '#/components/parameters/PathArticleIdBind'),
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
         ],
         responses: [
             new OA\Response(
@@ -122,9 +122,9 @@ class ArticleController extends Controller
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function show(Article $article)
+    public function show(int $id)
     {
-        $article = $this->articleService->getWithComments($article->id);
+        $article = $this->articleService->getWithComments($id);
 
         return new ArticleResource($article);
     }
@@ -164,13 +164,13 @@ class ArticleController extends Controller
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function like(Article $article)
+    public function like(int $id)
     {
-        $like = $this->articleService->incrementLike($article);
+        $like = $this->articleService->incrementLike($id);
 
         return response()->json([
-            'message' => "Article {$article->id} liked successfully.",
-            'article_id' => (int) $article->id,
+            'message' => "Article {$id} liked successfully.",
+            'article_id' => (int) $id,
             'like' => $like,
         ]);
     }

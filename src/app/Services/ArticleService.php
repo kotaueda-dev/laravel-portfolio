@@ -88,20 +88,18 @@ class ArticleService
     /**
      * 記事にいいねを追加
      */
-    public function incrementLike(Article $article): int
+    public function incrementLike(int $id): int
     {
         Log::info('いいねの追加を開始します。', [
-            'article_id' => $article->id,
-            'current_likes' => $article->like,
+            'article_id' => $id,
         ]);
 
         $this->articleCacheService->forgetAllList();
-        $this->articleCacheService->forgetDetail($article->id);
-
-        $newLikeCount = $this->articleRepository->incrementLike($article);
+        $this->articleCacheService->forgetDetail($id);
+        $newLikeCount = $this->articleRepository->incrementLike($id);
 
         Log::info('いいねの追加が完了しました。', [
-            'article_id' => $article->id,
+            'article_id' => $id,
             'new_likes' => $newLikeCount,
         ]);
 

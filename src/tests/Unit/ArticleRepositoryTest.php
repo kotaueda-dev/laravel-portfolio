@@ -66,7 +66,7 @@ class ArticleRepositoryTest extends TestCase
     {
         $article = Article::factory()->create(['like' => 0]);
 
-        $result = $this->articleRepository->incrementLike($article);
+        $result = $this->articleRepository->incrementLike($article->id);
 
         $this->assertEquals(1, $result);
         $this->assertDatabaseHas('articles', [
@@ -79,8 +79,8 @@ class ArticleRepositoryTest extends TestCase
     {
         $article = Article::factory()->create(['like' => 5]);
 
-        $this->articleRepository->incrementLike($article);
-        $result = $this->articleRepository->incrementLike($article);
+        $this->articleRepository->incrementLike($article->id);
+        $result = $this->articleRepository->incrementLike($article->id);
 
         $this->assertEquals(7, $result);
         $this->assertDatabaseHas('articles', [
