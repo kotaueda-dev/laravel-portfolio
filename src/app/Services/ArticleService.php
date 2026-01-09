@@ -11,7 +11,7 @@ class ArticleService
 {
     public function __construct(
         private ArticleRepository $repository,
-        private ArticleCacheService $cacheService
+        private ArticleCacheService $articleCacheService
     ) {}
 
     /**
@@ -21,7 +21,7 @@ class ArticleService
     {
         Log::info('記事一覧の取得を開始します。', ['page' => $page]);
 
-        $articles = $this->cacheService->rememberList($page, function () use ($page, $perPage) {
+        $articles = $this->articleCacheService->rememberList($page, function () use ($page, $perPage) {
             return $this->repository->getAllPaginated($page, $perPage);
         });
 
@@ -40,7 +40,7 @@ class ArticleService
     {
         Log::info('記事詳細の取得を開始します。', ['target_id' => $id]);
 
-        $article = $this->cacheService->rememberDetail($id, function () use ($id) {
+        $article = $this->articleCacheService->rememberDetail($id, function () use ($id) {
             return $this->repository->getWithComments($id);
         });
 
@@ -59,7 +59,7 @@ class ArticleService
     {
         Log::info('記事の作成を開始します。');
 
-        $this->cacheService->forgetAllList();
+        $this->articleCacheService->forgetAllList();
 
         $article = $this->repository->create($data);
 
@@ -75,8 +75,8 @@ class ArticleService
     {
         Log::info('記事の更新を開始します。', ['article_id' => $article->id]);
 
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
+        $this->articleCacheService->forgetAllList();
+        $this->articleCacheService->forgetDetail($article->id);
 
         $result = $this->repository->update($article, $data);
 
@@ -95,8 +95,8 @@ class ArticleService
             'current_likes' => $article->like,
         ]);
 
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
+        $this->articleCacheService->forgetAllList();
+        $this->articleCacheService->forgetDetail($article->id);
 
         $newLikeCount = $this->repository->incrementLike($article);
 
@@ -115,8 +115,8 @@ class ArticleService
     {
         Log::info('記事の削除を開始します。', ['article_id' => $article->id]);
 
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
+        $this->articleCacheService->forgetAllList();
+        $this->articleCacheService->forgetDetail($article->id);
 
         $result = $this->repository->delete($article);
 

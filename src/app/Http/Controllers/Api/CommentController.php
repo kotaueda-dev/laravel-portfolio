@@ -12,12 +12,7 @@ use OpenApi\Attributes as OA;
 
 class CommentController extends Controller
 {
-    protected ArticleCacheService $cacheService;
-
-    public function __construct(ArticleCacheService $cacheService)
-    {
-        $this->cacheService = $cacheService;
-    }
+    public function __construct(protected ArticleCacheService $articleCacheService) {}
 
     #[OA\Post(
         path: '/api/articles/{article}/comments',
@@ -48,8 +43,8 @@ class CommentController extends Controller
 
         $comment = $article->comments()->create($validatedData);
 
-        $this->cacheService->forgetAllList();
-        $this->cacheService->forgetDetail($article->id);
+        $this->articleCacheService->forgetAllList();
+        $this->articleCacheService->forgetDetail($article->id);
 
         Log::info('記事へのコメント投稿が完了しました。', [
             'article_id' => $article->id,
