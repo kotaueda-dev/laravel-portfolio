@@ -48,7 +48,7 @@ class ArticleController extends Controller
     public function index(IndexArticleRequest $request)
     {
         $page = $request->validated('page');
-        $articles = $this->articleService->getAllArticles($page, config('pagination.default_per_page'));
+        $articles = $this->articleService->getAllPaginated($page, config('pagination.default_per_page'));
 
         return ArticleListResource::collection($articles);
     }
@@ -92,7 +92,7 @@ class ArticleController extends Controller
     {
         $validatedData = $request->validated();
 
-        $article = $this->articleService->createArticle([
+        $article = $this->articleService->create([
             'title' => $validatedData['title'],
             'content' => $validatedData['content'],
             'user_id' => $request->user()->id,
@@ -124,7 +124,7 @@ class ArticleController extends Controller
     )]
     public function show(Article $article)
     {
-        $article = $this->articleService->getArticleWithComments($article->id);
+        $article = $this->articleService->getWithComments($article->id);
 
         return new ArticleResource($article);
     }
@@ -166,7 +166,7 @@ class ArticleController extends Controller
     )]
     public function like(Article $article)
     {
-        $like = $this->articleService->incrementArticleLike($article);
+        $like = $this->articleService->incrementLike($article);
 
         return response()->json([
             'message' => "Article {$article->id} liked successfully.",
@@ -213,7 +213,7 @@ class ArticleController extends Controller
         Gate::authorize('update', $article);
 
         $validatedData = $request->validated();
-        $this->articleService->updateArticle($article, $validatedData);
+        $this->articleService->update($article, $validatedData);
 
         return response()->json([
             'message' => 'Article updated successfully.',
@@ -253,7 +253,7 @@ class ArticleController extends Controller
     {
         Gate::authorize('delete', $article);
 
-        $this->articleService->deleteArticle($article);
+        $this->articleService->delete($article);
 
         return response()->json([
             'message' => 'Article deleted successfully.',
