@@ -7,8 +7,8 @@ use App\Http\Requests\DeleteArticleRequest;
 use App\Http\Requests\IndexArticleRequest;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
+use App\Http\Resources\ArticleDetailResource;
 use App\Http\Resources\ArticleListResource;
-use App\Http\Resources\ArticleResource;
 use App\Services\ArticleService;
 use OpenApi\Attributes as OA;
 
@@ -73,7 +73,7 @@ class ArticleController extends Controller
     {
         $article = $this->articleService->getWithComments($id);
 
-        return new ArticleResource($article);
+        return new ArticleDetailResource($article);
     }
 
     // 記事の投稿

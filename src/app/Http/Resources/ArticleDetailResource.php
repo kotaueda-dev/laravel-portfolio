@@ -34,7 +34,7 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-class ArticleResource extends JsonResource
+class ArticleDetailResource extends JsonResource
 {
     public static $wrap = null;
 
