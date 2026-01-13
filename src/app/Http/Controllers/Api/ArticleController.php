@@ -118,7 +118,7 @@ class ArticleController extends Controller
         $article = $this->articleService->create([
             'title' => $validatedData['title'],
             'content' => $validatedData['content'],
-            'user_id' => $request->user()->id,
+            'user_id' => $validatedData['user_id'],
         ]);
 
         return response()->json([

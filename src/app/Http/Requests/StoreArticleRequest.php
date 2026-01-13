@@ -27,6 +27,19 @@ class StoreArticleRequest extends FormRequest
     }
 
     /**
+     * ルータで形式チェック済みの id を検証済みデータに含める。
+     */
+    public function validated($key = null, $default = null)
+    {
+        $validated = parent::validated($key, $default);
+
+        // ルート制約で正の整数が保証されている前提でマージ
+        $validated['user_id'] = (int) optional($this->user())->id;
+
+        return $validated;
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
