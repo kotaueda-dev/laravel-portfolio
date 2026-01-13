@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteArticleRequest;
-use App\Http\Requests\IndexArticleRequest;
+use App\Http\Requests\ListArticleRequest;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Resources\ArticleDetailResource;
@@ -43,7 +43,7 @@ class ArticleController extends Controller
             new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
         ]
     )]
-    public function index(IndexArticleRequest $request)
+    public function index(ListArticleRequest $request)
     {
         $page = $request->validated('page');
         $articles = $this->articleService->getAllPaginated($page, config('pagination.default_per_page'));
