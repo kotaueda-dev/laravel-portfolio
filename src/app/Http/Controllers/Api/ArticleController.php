@@ -51,6 +51,31 @@ class ArticleController extends Controller
         return ArticleListResource::collection($articles);
     }
 
+    // 記事の取得
+    #[OA\Get(
+        path: '/api/articles/{id}',
+        summary: '指定した記事を取得する',
+        tags: ['Articles'],
+        parameters: [
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: '成功',
+                content: new OA\JsonContent(ref: '#/components/schemas/ArticleWithCommentsResource')
+            ),
+            new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
+            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
+        ]
+    )]
+    public function show(int $id)
+    {
+        $article = $this->articleService->getWithComments($id);
+
+        return new ArticleResource($article);
+    }
+
     // 記事の投稿
     #[OA\Post(
         path: '/api/articles',
@@ -100,77 +125,6 @@ class ArticleController extends Controller
             'message' => 'Article created successfully.',
             'article' => $article,
         ], 201);
-    }
-
-    // 記事の取得
-    #[OA\Get(
-        path: '/api/articles/{id}',
-        summary: '指定した記事を取得する',
-        tags: ['Articles'],
-        parameters: [
-            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: '成功',
-                content: new OA\JsonContent(ref: '#/components/schemas/ArticleWithCommentsResource')
-            ),
-            new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
-            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
-        ]
-    )]
-    public function show(int $id)
-    {
-        $article = $this->articleService->getWithComments($id);
-
-        return new ArticleResource($article);
-    }
-
-    // いいねの投稿
-    #[OA\Post(
-        path: '/api/articles/{id}/likes',
-        summary: '記事にいいねを投稿する',
-        tags: ['Articles'],
-        parameters: [
-            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: '成功',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: 'message',
-                            type: 'string',
-                            example: 'Article liked successfully.'
-                        ),
-                        new OA\Property(
-                            property: 'article_id',
-                            type: 'integer',
-                            example: 1
-                        ),
-                        new OA\Property(
-                            property: 'like',
-                            type: 'integer',
-                            example: 10
-                        ),
-                    ]
-                )
-            ),
-            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
-        ]
-    )]
-    public function like(int $id)
-    {
-        $like = $this->articleService->incrementLike($id);
-
-        return response()->json([
-            'message' => "Article {$id} liked successfully.",
-            'article_id' => (int) $id,
-            'like' => $like,
-        ]);
     }
 
     // 記事の更新
@@ -247,6 +201,52 @@ class ArticleController extends Controller
 
         return response()->json([
             'message' => 'Article deleted successfully.',
+        ]);
+    }
+
+    // いいねの投稿
+    #[OA\Post(
+        path: '/api/articles/{id}/likes',
+        summary: '記事にいいねを投稿する',
+        tags: ['Articles'],
+        parameters: [
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: '成功',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'Article liked successfully.'
+                        ),
+                        new OA\Property(
+                            property: 'article_id',
+                            type: 'integer',
+                            example: 1
+                        ),
+                        new OA\Property(
+                            property: 'like',
+                            type: 'integer',
+                            example: 10
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
+        ]
+    )]
+    public function like(int $id)
+    {
+        $like = $this->articleService->incrementLike($id);
+
+        return response()->json([
+            'message' => "Article {$id} liked successfully.",
+            'article_id' => (int) $id,
+            'like' => $like,
         ]);
     }
 }
