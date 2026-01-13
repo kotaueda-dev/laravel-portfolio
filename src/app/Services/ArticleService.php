@@ -71,16 +71,16 @@ class ArticleService
     /**
      * 記事を更新
      */
-    public function update(Article $article, array $data): bool
+    public function update(int $id, array $data): bool
     {
-        Log::info('記事の更新を開始します。', ['article_id' => $article->id]);
+        Log::info('記事の更新を開始します。', ['article_id' => $id]);
 
         $this->articleCacheService->forgetAllList();
-        $this->articleCacheService->forgetDetail($article->id);
+        $this->articleCacheService->forgetDetail($id);
 
-        $result = $this->articleRepository->update($article, $data);
+        $result = $this->articleRepository->update($id, $data);
 
-        Log::info('記事の更新が完了しました。', ['article_id' => $article->id]);
+        Log::info('記事の更新が完了しました。', ['article_id' => $id]);
 
         return $result;
     }

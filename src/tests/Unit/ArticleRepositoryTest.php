@@ -40,7 +40,7 @@ class ArticleRepositoryTest extends TestCase
         $article = Article::factory()->create();
         $data = ['title' => 'Updated Title'];
 
-        $this->articleRepository->update($article, $data);
+        $this->articleRepository->update($article->id, $data);
 
         $this->assertDatabaseHas('articles', $data);
     }

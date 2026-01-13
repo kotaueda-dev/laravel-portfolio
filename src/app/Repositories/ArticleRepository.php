@@ -45,8 +45,9 @@ class ArticleRepository
     /**
      * 記事を更新
      */
-    public function update(Article $article, array $data): bool
+    public function update(int $id, array $data): bool
     {
+        $article = Article::findOrFail($id);
         $result = $article->update($data);
 
         return $result;

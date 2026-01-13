@@ -196,10 +196,6 @@ class ArticleController extends Controller
                             type: 'string',
                             example: 'Article updated successfully.'
                         ),
-                        new OA\Property(
-                            property: 'article',
-                            ref: '#/components/schemas/ArticleResource'
-                        ),
                     ]
                 )
             ),
@@ -208,16 +204,13 @@ class ArticleController extends Controller
             new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
-    public function update(UpdateArticleRequest $request, Article $article)
+    public function update(UpdateArticleRequest $request)
     {
-        Gate::authorize('update', $article);
-
         $validatedData = $request->validated();
-        $this->articleService->update($article, $validatedData);
+        $this->articleService->update($validatedData['id'], $validatedData);
 
         return response()->json([
             'message' => 'Article updated successfully.',
-            'article' => $article,
         ]);
     }
 

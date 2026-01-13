@@ -22,7 +22,7 @@ Route::prefix('articles')->group(function () {
     // 認証済みユーザーのみ
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ArticleController::class, 'store']);
-        Route::put('/{article}', [ArticleController::class, 'update']);
+        Route::put('/{id}', [ArticleController::class, 'update']);
         Route::delete('/{article}', [ArticleController::class, 'destroy']);
     });
 });

@@ -44,9 +44,9 @@ class ArticleServiceTest extends TestCase
         $data = ['title' => 'Updated Title'];
         $this->articleCacheService->expects($this->once())->method('forgetAllList');
         $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($article->id);
-        $this->articleRepository->expects($this->once())->method('update')->with($article, $data)->willReturn(true);
+        $this->articleRepository->expects($this->once())->method('update')->with($article->id, $data)->willReturn(true);
 
-        $this->articleService->update($article, $data);
+        $this->articleService->update($article->id, $data);
     }
 
     public function test_delete_article_calls_repository_and_clears_cache()
