@@ -4,20 +4,8 @@ namespace App\Http\Requests;
 
 use App\Models\Article;
 use Illuminate\Foundation\Http\FormRequest;
-use OpenApi\Attributes as OA;
 
-#[OA\RequestBody(
-    request: 'UpdateArticleRequest',
-    required: true,
-    content: new OA\JsonContent(
-        properties: [
-            new OA\Property(property: 'id', type: 'integer', example: 1),
-            new OA\Property(property: 'title', type: 'string', maxLength: 255, example: '更新された記事のタイトル'),
-            new OA\Property(property: 'content', type: 'string', example: '更新された記事の本文'),
-        ]
-    )
-)]
-class UpdateArticleRequest extends FormRequest
+class DeleteArticleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,11 +14,11 @@ class UpdateArticleRequest extends FormRequest
     {
         $article = Article::find($this->route('id'));
 
-        return $article && $this->user()->can('update', $article);
+        return $article && $this->user()->can('delete', $article);
     }
 
     /**
-     * ルートパラメータの id をバリデーション対象に含める。
+     * ルートパラメータの article (ID) をバリデーション対象に含める。
      */
     protected function prepareForValidation(): void
     {
@@ -59,9 +47,6 @@ class UpdateArticleRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'content' => ['sometimes', 'required', 'string'],
-        ];
+        return [];
     }
 }

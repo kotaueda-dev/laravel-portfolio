@@ -54,9 +54,9 @@ class ArticleServiceTest extends TestCase
         $article = Article::factory()->create();
         $this->articleCacheService->expects($this->once())->method('forgetAllList');
         $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($article->id);
-        $this->articleRepository->expects($this->once())->method('delete')->with($article)->willReturn(true);
+        $this->articleRepository->expects($this->once())->method('delete')->with($article->id)->willReturn(true);
 
-        $this->articleService->delete($article);
+        $this->articleService->delete($article->id);
     }
 
     public function test_get_article_with_comments_returns_null_if_not_found()

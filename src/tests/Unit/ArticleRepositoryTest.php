@@ -49,7 +49,7 @@ class ArticleRepositoryTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $this->articleRepository->delete($article);
+        $this->articleRepository->delete($article->id);
 
         $this->assertDatabaseMissing('articles', [
             'id' => $article->id,

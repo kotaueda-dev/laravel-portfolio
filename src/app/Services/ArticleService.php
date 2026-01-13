@@ -109,16 +109,16 @@ class ArticleService
     /**
      * 記事を削除
      */
-    public function delete(Article $article): bool
+    public function delete(int $id): bool
     {
-        Log::info('記事の削除を開始します。', ['article_id' => $article->id]);
+        Log::info('記事の削除を開始します。', ['article_id' => $id]);
 
         $this->articleCacheService->forgetAllList();
-        $this->articleCacheService->forgetDetail($article->id);
+        $this->articleCacheService->forgetDetail($id);
 
-        $result = $this->articleRepository->delete($article);
+        $result = $this->articleRepository->delete($id);
 
-        Log::info('記事の削除が完了しました。', ['article_id' => $article->id]);
+        Log::info('記事の削除が完了しました。', ['article_id' => $id]);
 
         return $result;
     }

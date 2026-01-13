@@ -48,9 +48,8 @@ class ArticleRepository
     public function update(int $id, array $data): bool
     {
         $article = Article::findOrFail($id);
-        $result = $article->update($data);
 
-        return $result;
+        return $article->update($data);
     }
 
     /**
@@ -67,10 +66,10 @@ class ArticleRepository
     /**
      * 記事を削除
      */
-    public function delete(Article $article): bool
+    public function delete(int $id): bool
     {
-        $result = $article->delete();
+        $article = Article::findOrFail($id);
 
-        return $result;
+        return $article->delete();
     }
 }
