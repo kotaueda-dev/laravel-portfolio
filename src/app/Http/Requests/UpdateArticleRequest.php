@@ -30,16 +30,6 @@ class UpdateArticleRequest extends FormRequest
     }
 
     /**
-     * ルートパラメータの id をバリデーション対象に含める。
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'id' => $this->route('id'),
-        ]);
-    }
-
-    /**
      * ルータで形式チェック済みの id を検証済みデータに含める。
      */
     public function validated($key = null, $default = null)
