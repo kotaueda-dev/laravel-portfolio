@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\StoreArticleData;
 use App\Models\Article;
 use App\Repositories\ArticleRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -55,13 +56,13 @@ class ArticleService
     /**
      * 新規記事を作成
      */
-    public function create(array $data): Article
+    public function create(StoreArticleData $dto): Article
     {
         Log::info('記事の作成を開始します。');
 
         $this->articleCacheService->forgetAllList();
 
-        $article = $this->articleRepository->create($data);
+        $article = $this->articleRepository->create($dto);
 
         Log::info('記事の作成が完了しました。', ['article_id' => $article->id]);
 

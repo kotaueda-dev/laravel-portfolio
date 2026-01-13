@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Data\StoreArticleData;
 use App\Models\Article;
 use App\Repositories\ArticleRepository;
 use App\Services\ArticleCacheService;
@@ -31,11 +32,16 @@ class ArticleServiceTest extends TestCase
     public function test_create_article_calls_repository_and_clears_cache()
     {
         $data = ['title' => 'Test Title', 'content' => 'Test Content'];
+        $dto = new StoreArticleData(
+            title: 'Test Title',
+            content: 'Test Content',
+            user_id: 1,
+        );
         $this->articleCacheService->expects($this->once())->method('forgetAllList');
         $this->articleCacheService->expects($this->never())->method('forgetDetail');
-        $this->articleRepository->expects($this->once())->method('create')->with($data)->willReturn(new Article($data));
+        $this->articleRepository->expects($this->once())->method('create')->with($dto)->willReturn(new Article((array) $dto));
 
-        $this->articleService->create($data);
+        $this->articleService->create($dto);
     }
 
     public function test_update_article_calls_repository_and_clears_cache()

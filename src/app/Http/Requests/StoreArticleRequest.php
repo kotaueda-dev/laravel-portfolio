@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Data\StoreArticleData;
 use Illuminate\Foundation\Http\FormRequest;
 use OpenApi\Attributes as OA;
 
@@ -27,19 +28,6 @@ class StoreArticleRequest extends FormRequest
     }
 
     /**
-     * ルータで形式チェック済みの id を検証済みデータに含める。
-     */
-    public function validated($key = null, $default = null)
-    {
-        $validated = parent::validated($key, $default);
-
-        // ルート制約で正の整数が保証されている前提でマージ
-        $validated['user_id'] = (int) optional($this->user())->id;
-
-        return $validated;
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -50,5 +38,14 @@ class StoreArticleRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
         ];
+    }
+
+    public function toDto(): StoreArticleData
+    {
+        return new StoreArticleData(
+            title: $this->validated('title'),
+            content: $this->validated('content'),
+            user_id: $this->validated('user_id'),  // 認証から取得
+        );
     }
 }

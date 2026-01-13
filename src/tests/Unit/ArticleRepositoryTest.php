@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Data\StoreArticleData;
 use App\Models\Article;
 use App\Models\User;
 use App\Repositories\ArticleRepository;
@@ -23,15 +24,16 @@ class ArticleRepositoryTest extends TestCase
     public function test_create_article()
     {
         $user = User::factory()->create();
-        $data = [
-            'title' => 'Test Title',
-            'content' => 'Test Content',
-            'user_id' => $user->id,
-        ];
 
-        $article = $this->articleRepository->create($data);
+        $dto = new StoreArticleData(
+            title: 'Test Title',
+            content: 'Test Content',
+            user_id: $user->id,
+        );
 
-        $this->assertDatabaseHas('articles', $data);
+        $article = $this->articleRepository->create($dto);
+
+        $this->assertDatabaseHas('articles', $dto->toArray());
         $this->assertInstanceOf(Article::class, $article);
     }
 

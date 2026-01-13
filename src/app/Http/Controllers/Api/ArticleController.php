@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Data\StoreArticleData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteArticleRequest;
 use App\Http\Requests\ListArticleRequest;
@@ -113,13 +114,13 @@ class ArticleController extends Controller
     )]
     public function store(StoreArticleRequest $request)
     {
-        $validatedData = $request->validated();
-
-        $article = $this->articleService->create([
-            'title' => $validatedData['title'],
-            'content' => $validatedData['content'],
-            'user_id' => $validatedData['user_id'],
+        $dto = StoreArticleData::from([
+            'title' => $request->validated('title'),
+            'content' => $request->validated('content'),
+            'user_id' => $request->user()->id,
         ]);
+
+        $article = $this->articleService->create($dto);
 
         return response()->json([
             'message' => 'Article created successfully.',

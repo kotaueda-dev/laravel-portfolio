@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Data\StoreArticleData;
 use App\Models\Article;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -35,9 +36,13 @@ class ArticleRepository
     /**
      * 記事を作成
      */
-    public function create(array $data): Article
+    public function create(StoreArticleData $dto): Article
     {
-        $article = Article::create($data);
+        $article = Article::create([
+            'title' => $dto->title,
+            'content' => $dto->content,
+            'user_id' => $dto->user_id,
+        ]);
 
         return $article;
     }
