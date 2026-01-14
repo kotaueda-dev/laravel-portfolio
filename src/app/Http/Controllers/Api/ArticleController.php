@@ -161,9 +161,8 @@ class ArticleController extends Controller
     public function update(UpdateArticleRequest $request, int $id)
     {
         $dto = UpdateArticleData::from([
-            'title' => $request->validated('title') ?? '',
-            'content' => $request->validated('content') ?? '',
             'id' => $id,
+            ...$request->validated(),
         ]);
 
         $this->articleService->update($dto);

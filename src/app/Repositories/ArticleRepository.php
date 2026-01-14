@@ -55,10 +55,7 @@ class ArticleRepository
     {
         $article = Article::findOrFail($dto->id);
 
-        return $article->update([
-            'title' => $dto->title,
-            'content' => $dto->content,
-        ]);
+        return $article->update($dto->toArray());
     }
 
     /**
