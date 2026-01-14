@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteArticleRequest;
 use App\Http\Requests\ListArticleRequest;
@@ -157,10 +158,15 @@ class ArticleController extends Controller
             new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
-    public function update(UpdateArticleRequest $request)
+    public function update(UpdateArticleRequest $request, int $id)
     {
-        $validatedData = $request->validated();
-        $this->articleService->update($validatedData['id'], $validatedData);
+        $dto = UpdateArticleData::from([
+            'title' => $request->validated('title') ?? '',
+            'content' => $request->validated('content') ?? '',
+            'id' => $id,
+        ]);
+
+        $this->articleService->update($dto);
 
         return response()->json([
             'message' => 'Article updated successfully.',

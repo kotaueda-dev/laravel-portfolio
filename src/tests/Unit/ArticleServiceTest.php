@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Models\Article;
 use App\Repositories\ArticleRepository;
 use App\Services\ArticleCacheService;
@@ -31,15 +32,15 @@ class ArticleServiceTest extends TestCase
 
     public function test_create_article_calls_repository_and_clears_cache()
     {
-        $data = ['title' => 'Test Title', 'content' => 'Test Content'];
         $dto = new StoreArticleData(
             title: 'Test Title',
             content: 'Test Content',
             user_id: 1,
         );
+
         $this->articleCacheService->expects($this->once())->method('forgetAllList');
         $this->articleCacheService->expects($this->never())->method('forgetDetail');
-        $this->articleRepository->expects($this->once())->method('create')->with($dto)->willReturn(new Article((array) $dto));
+        $this->articleRepository->expects($this->once())->method('create')->with($dto)->willReturn(new Article($dto->toArray()));
 
         $this->articleService->create($dto);
     }
@@ -47,12 +48,17 @@ class ArticleServiceTest extends TestCase
     public function test_update_article_calls_repository_and_clears_cache()
     {
         $article = Article::factory()->create();
-        $data = ['title' => 'Updated Title'];
-        $this->articleCacheService->expects($this->once())->method('forgetAllList');
-        $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($article->id);
-        $this->articleRepository->expects($this->once())->method('update')->with($article->id, $data)->willReturn(true);
 
-        $this->articleService->update($article->id, $data);
+        $dto = new UpdateArticleData(
+            title: 'Test Title',
+            content: 'Test Content',
+            id: $article->id,
+        );
+
+        $this->articleCacheService->expects($this->once())->method('forgetAllList');
+        $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($dto->id);
+        $this->articleRepository->expects($this->once())->method('update')->with($dto)->willReturn(true);
+        $this->articleService->update($dto);
     }
 
     public function test_delete_article_calls_repository_and_clears_cache()
@@ -76,6 +82,4 @@ class ArticleServiceTest extends TestCase
 
         $this->assertNull($result);
     }
-
-    // 他のテストケースも追加可能
 }

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Models\Article;
 use App\Repositories\ArticleRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -72,16 +73,16 @@ class ArticleService
     /**
      * 記事を更新
      */
-    public function update(int $id, array $data): bool
+    public function update(UpdateArticleData $dto): bool
     {
-        Log::info('記事の更新を開始します。', ['article_id' => $id]);
+        Log::info('記事の更新を開始します。', ['article_id' => $dto->id]);
 
         $this->articleCacheService->forgetAllList();
-        $this->articleCacheService->forgetDetail($id);
+        $this->articleCacheService->forgetDetail($dto->id);
 
-        $result = $this->articleRepository->update($id, $data);
+        $result = $this->articleRepository->update($dto);
 
-        Log::info('記事の更新が完了しました。', ['article_id' => $id]);
+        Log::info('記事の更新が完了しました。', ['article_id' => $dto->id]);
 
         return $result;
     }

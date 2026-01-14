@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Models\Article;
 use App\Models\User;
 use App\Repositories\ArticleRepository;
@@ -40,11 +41,15 @@ class ArticleRepositoryTest extends TestCase
     public function test_update_article()
     {
         $article = Article::factory()->create();
-        $data = ['title' => 'Updated Title'];
 
-        $this->articleRepository->update($article->id, $data);
+        $dto = UpdateArticleData::from([
+            'id' => $article->id,
+            'title' => 'Updated Title',
+        ]);
 
-        $this->assertDatabaseHas('articles', $data);
+        $this->articleRepository->update($dto);
+
+        $this->assertDatabaseHas('articles', $dto->toArray());
     }
 
     public function test_delete_article()

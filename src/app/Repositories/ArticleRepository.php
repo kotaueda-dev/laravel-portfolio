@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Models\Article;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -50,11 +51,14 @@ class ArticleRepository
     /**
      * 記事を更新
      */
-    public function update(int $id, array $data): bool
+    public function update(UpdateArticleData $dto): bool
     {
-        $article = Article::findOrFail($id);
+        $article = Article::findOrFail($dto->id);
 
-        return $article->update($data);
+        return $article->update([
+            'title' => $dto->title,
+            'content' => $dto->content,
+        ]);
     }
 
     /**

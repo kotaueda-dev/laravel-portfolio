@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Data\StoreArticleData;
 use Illuminate\Foundation\Http\FormRequest;
 use OpenApi\Attributes as OA;
 
@@ -38,14 +37,5 @@ class StoreArticleRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
         ];
-    }
-
-    public function toDto(): StoreArticleData
-    {
-        return new StoreArticleData(
-            title: $this->validated('title'),
-            content: $this->validated('content'),
-            user_id: $this->validated('user_id'),  // 認証から取得
-        );
     }
 }
