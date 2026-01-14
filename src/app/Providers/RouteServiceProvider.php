@@ -21,6 +21,6 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // グローバルなルートパラメータ制約を定義
-        Route::pattern('id', '^[1-9][0-9]*$');
+        Route::pattern('id', '[1-9][0-9]*');
     }
 }

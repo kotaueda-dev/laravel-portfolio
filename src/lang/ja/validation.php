@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'path_id' => ':attribute は無効なID形式です。（正の整数のみ許可）',
     // デフォルトのバリデーションメッセージ
     'required' => ':attribute は必須です。',
     'string' => ':attribute は文字列でなければなりません。',
