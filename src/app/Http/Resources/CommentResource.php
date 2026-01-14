@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property int $id
+ * @property int $article_id
+ * @property string $message
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 class CommentResource extends JsonResource
 {
     public static $wrap = null;
