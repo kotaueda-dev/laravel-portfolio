@@ -11,7 +11,6 @@ use OpenApi\Attributes as OA;
     required: true,
     content: new OA\JsonContent(
         properties: [
-            new OA\Property(property: 'id', type: 'integer', example: 1),
             new OA\Property(property: 'title', type: 'string', maxLength: 255, example: '更新された記事のタイトル'),
             new OA\Property(property: 'content', type: 'string', example: '更新された記事の本文'),
         ]
