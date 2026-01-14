@@ -9,12 +9,12 @@ class CacheKeyHelper
         return 'articles:list:page';
     }
 
-    public static function articleListKey(string $page): string
+    public static function articleListKey(int $page): string
     {
         return "articles:list:page:{$page}";
     }
 
-    public static function articleDetailKey(string $id): string
+    public static function articleDetailKey(int $id): string
     {
         return "articles:detail:{$id}";
     }
