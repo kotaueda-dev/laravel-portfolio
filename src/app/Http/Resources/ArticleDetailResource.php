@@ -6,6 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $title
+ * @property string $content
+ * @property int $like
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[OA\Schema(
     schema: 'ArticleResource',
     properties: [
@@ -34,7 +43,7 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-class ArticleResource extends JsonResource
+class ArticleDetailResource extends JsonResource
 {
     public static $wrap = null;
 

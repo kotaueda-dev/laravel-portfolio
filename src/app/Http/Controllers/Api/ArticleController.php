@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\IndexArticleRequest;
+use App\Http\Requests\DeleteArticleRequest;
+use App\Http\Requests\ListArticleRequest;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
+use App\Http\Resources\ArticleDetailResource;
 use App\Http\Resources\ArticleListResource;
-use App\Http\Resources\ArticleResource;
-use App\Models\Article;
 use App\Services\ArticleService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
 
 class ArticleController extends Controller
@@ -45,12 +45,37 @@ class ArticleController extends Controller
             new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
         ]
     )]
-    public function index(IndexArticleRequest $request)
+    public function index(ListArticleRequest $request)
     {
         $page = $request->validated('page');
-        $articles = $this->articleService->getAllArticles($page, config('pagination.default_per_page'));
+        $articles = $this->articleService->getAllPaginated($page, config('pagination.default_per_page'));
 
         return ArticleListResource::collection($articles);
+    }
+
+    // 記事の取得
+    #[OA\Get(
+        path: '/api/articles/{id}',
+        summary: '指定した記事を取得する',
+        tags: ['Articles'],
+        parameters: [
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: '成功',
+                content: new OA\JsonContent(ref: '#/components/schemas/ArticleWithCommentsResource')
+            ),
+            new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
+            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
+        ]
+    )]
+    public function show(int $id)
+    {
+        $article = $this->articleService->getWithComments($id);
+
+        return new ArticleDetailResource($article);
     }
 
     // 記事の投稿
@@ -90,13 +115,13 @@ class ArticleController extends Controller
     )]
     public function store(StoreArticleRequest $request)
     {
-        $validatedData = $request->validated();
-
-        $article = $this->articleService->createArticle([
-            'title' => $validatedData['title'],
-            'content' => $validatedData['content'],
+        $dto = StoreArticleData::from([
+            'title' => $request->validated('title'),
+            'content' => $request->validated('content'),
             'user_id' => $request->user()->id,
         ]);
+
+        $article = $this->articleService->create($dto);
 
         return response()->json([
             'message' => 'Article created successfully.',
@@ -104,29 +129,85 @@ class ArticleController extends Controller
         ], 201);
     }
 
-    // 記事の取得
-    #[OA\Get(
-        path: '/api/articles/{article}',
-        summary: '指定した記事を取得する',
+    // 記事の更新
+    #[OA\Put(
+        path: '/api/articles/{id}',
+        summary: '記事を更新する',
+        security: [['sanctum' => []]],
         tags: ['Articles'],
         parameters: [
-            new OA\PathParameter(ref: '#/components/parameters/PathArticleIdBind'),
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
+        ],
+        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/UpdateArticleRequest'),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: '成功',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'Article updated successfully.'
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
+        ]
+    )]
+    public function update(UpdateArticleRequest $request, int $id)
+    {
+        $dto = UpdateArticleData::from([
+            'id' => $id,
+            ...$request->validated(),
+        ]);
+
+        $this->articleService->update($dto);
+
+        return response()->json([
+            'message' => 'Article updated successfully.',
+        ]);
+    }
+
+    // 記事の削除
+    #[OA\Delete(
+        path: '/api/articles/{id}',
+        summary: '記事を削除する',
+        security: [['sanctum' => []]],
+        tags: ['Articles'],
+        parameters: [
+            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
                 description: '成功',
-                content: new OA\JsonContent(ref: '#/components/schemas/ArticleWithCommentsResource')
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'Article deleted successfully.'
+                        ),
+                    ]
+                )
             ),
-            new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
+            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function show(Article $article)
+    public function destroy(DeleteArticleRequest $request)
     {
-        $article = $this->articleService->getArticleWithComments($article->id);
+        $validatedData = $request->validated();
+        $this->articleService->delete($validatedData['id']);
 
-        return new ArticleResource($article);
+        return response()->json([
+            'message' => 'Article deleted successfully.',
+        ]);
     }
 
     // いいねの投稿
@@ -164,99 +245,14 @@ class ArticleController extends Controller
             new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
         ]
     )]
-    public function like(Article $article)
+    public function like(int $id)
     {
-        $like = $this->articleService->incrementArticleLike($article);
+        $like = $this->articleService->incrementLike($id);
 
         return response()->json([
-            'message' => "Article {$article->id} liked successfully.",
-            'article_id' => (int) $article->id,
+            'message' => "Article {$id} liked successfully.",
+            'article_id' => (int) $id,
             'like' => $like,
-        ]);
-    }
-
-    // 記事の更新
-    #[OA\Put(
-        path: '/api/articles/{id}',
-        summary: '記事を更新する',
-        security: [['sanctum' => []]],
-        tags: ['Articles'],
-        parameters: [
-            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
-        ],
-        requestBody: new OA\RequestBody(ref: '#/components/requestBodies/UpdateArticleRequest'),
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: '成功',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: 'message',
-                            type: 'string',
-                            example: 'Article updated successfully.'
-                        ),
-                        new OA\Property(
-                            property: 'article',
-                            ref: '#/components/schemas/ArticleResource'
-                        ),
-                    ]
-                )
-            ),
-            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
-            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
-            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
-        ]
-    )]
-    public function update(UpdateArticleRequest $request, Article $article)
-    {
-        Gate::authorize('update', $article);
-
-        $validatedData = $request->validated();
-        $this->articleService->updateArticle($article, $validatedData);
-
-        return response()->json([
-            'message' => 'Article updated successfully.',
-            'article' => $article,
-        ]);
-    }
-
-    // 記事の削除
-    #[OA\Delete(
-        path: '/api/articles/{id}',
-        summary: '記事を削除する',
-        security: [['sanctum' => []]],
-        tags: ['Articles'],
-        parameters: [
-            new OA\PathParameter(ref: '#/components/parameters/PathArticleId'),
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: '成功',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: 'message',
-                            type: 'string',
-                            example: 'Article deleted successfully.'
-                        ),
-                    ]
-                )
-            ),
-            new OA\Response(response: 401, ref: '#/components/responses/401_Unauthenticated'),
-            new OA\Response(response: 403, ref: '#/components/responses/403_Unauthorized'),
-            new OA\Response(response: 404, ref: '#/components/responses/404_NotFound'),
-        ]
-    )]
-    public function destroy(Request $request, Article $article)
-    {
-        Gate::authorize('delete', $article);
-
-        $this->articleService->deleteArticle($article);
-
-        return response()->json([
-            'message' => 'Article deleted successfully.',
         ]);
     }
 }

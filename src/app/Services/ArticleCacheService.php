@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Log;
 
 class ArticleCacheService
 {
-    public function rememberList(string $page, callable $callback, int $ttl = 300): mixed
+    public function rememberList(int $page, callable $callback, int $ttl = 300): mixed
     {
         $cacheKey = CacheKeyHelper::articleListKey($page);
 
         return Cache::tags(CacheKeyHelper::articleListTag())->remember($cacheKey, $ttl, $callback);
     }
 
-    public function getList(string $page): mixed
+    public function getList(int $page): mixed
     {
         $cacheKey = CacheKeyHelper::articleListKey($page);
 
@@ -29,21 +29,21 @@ class ArticleCacheService
         Log::debug('記事一覧のキャッシュを削除しました。');
     }
 
-    public function rememberDetail(string $id, callable $callback, int $ttl = 300): mixed
+    public function rememberDetail(int $id, callable $callback, int $ttl = 300): mixed
     {
         $cacheKey = CacheKeyHelper::articleDetailKey($id);
 
         return Cache::remember($cacheKey, $ttl, $callback);
     }
 
-    public function getDetail(string $id): mixed
+    public function getDetail(int $id): mixed
     {
         $cacheKey = CacheKeyHelper::articleDetailKey($id);
 
         return Cache::get($cacheKey);
     }
 
-    public function forgetDetail(string $id): void
+    public function forgetDetail(int $id): void
     {
         Cache::forget(CacheKeyHelper::articleDetailKey($id));
 

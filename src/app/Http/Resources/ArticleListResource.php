@@ -6,6 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $title
+ * @property int $like
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[OA\Schema(
     schema: 'ArticleListResource',
     description: '記事一覧用の軽量リソース',

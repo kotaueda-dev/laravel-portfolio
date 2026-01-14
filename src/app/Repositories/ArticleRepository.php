@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Models\Article;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -20,7 +22,7 @@ class ArticleRepository
      */
     public function getWithComments(int $id): ?Article
     {
-        return Article::with('comments')->find($id);
+        return Article::with('comments')->findOrFail($id);
 
     }
 
@@ -35,9 +37,13 @@ class ArticleRepository
     /**
      * 記事を作成
      */
-    public function create(array $data): Article
+    public function create(StoreArticleData $dto): Article
     {
-        $article = Article::create($data);
+        $article = Article::create([
+            'title' => $dto->title,
+            'content' => $dto->content,
+            'user_id' => $dto->user_id,
+        ]);
 
         return $article;
     }
@@ -45,18 +51,19 @@ class ArticleRepository
     /**
      * 記事を更新
      */
-    public function update(Article $article, array $data): bool
+    public function update(UpdateArticleData $dto): bool
     {
-        $result = $article->update($data);
+        $article = Article::findOrFail($dto->id);
 
-        return $result;
+        return $article->update($dto->toArray());
     }
 
     /**
      * 記事のいいね数をインクリメント
      */
-    public function incrementLike(Article $article): int
+    public function incrementLike(int $id): int
     {
+        $article = Article::findOrFail($id);
         $article->increment('like');
 
         return $article->refresh()->like;
@@ -65,10 +72,10 @@ class ArticleRepository
     /**
      * 記事を削除
      */
-    public function delete(Article $article): bool
+    public function delete(int $id): bool
     {
-        $result = $article->delete();
+        $article = Article::findOrFail($id);
 
-        return $result;
+        return $article->delete();
     }
 }

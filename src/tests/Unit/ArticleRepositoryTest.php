@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\Data\StoreArticleData;
+use App\Data\UpdateArticleData;
 use App\Models\Article;
 use App\Models\User;
 use App\Repositories\ArticleRepository;
@@ -23,33 +25,38 @@ class ArticleRepositoryTest extends TestCase
     public function test_create_article()
     {
         $user = User::factory()->create();
-        $data = [
-            'title' => 'Test Title',
-            'content' => 'Test Content',
-            'user_id' => $user->id,
-        ];
 
-        $article = $this->articleRepository->create($data);
+        $dto = new StoreArticleData(
+            title: 'Test Title',
+            content: 'Test Content',
+            user_id: $user->id,
+        );
 
-        $this->assertDatabaseHas('articles', $data);
+        $article = $this->articleRepository->create($dto);
+
+        $this->assertDatabaseHas('articles', $dto->toArray());
         $this->assertInstanceOf(Article::class, $article);
     }
 
     public function test_update_article()
     {
         $article = Article::factory()->create();
-        $data = ['title' => 'Updated Title'];
 
-        $this->articleRepository->update($article, $data);
+        $dto = UpdateArticleData::from([
+            'id' => $article->id,
+            'title' => 'Updated Title',
+        ]);
 
-        $this->assertDatabaseHas('articles', $data);
+        $this->articleRepository->update($dto);
+
+        $this->assertDatabaseHas('articles', $dto->toArray());
     }
 
     public function test_delete_article()
     {
         $article = Article::factory()->create();
 
-        $this->articleRepository->delete($article);
+        $this->articleRepository->delete($article->id);
 
         $this->assertDatabaseMissing('articles', [
             'id' => $article->id,
@@ -66,7 +73,7 @@ class ArticleRepositoryTest extends TestCase
     {
         $article = Article::factory()->create(['like' => 0]);
 
-        $result = $this->articleRepository->incrementLike($article);
+        $result = $this->articleRepository->incrementLike($article->id);
 
         $this->assertEquals(1, $result);
         $this->assertDatabaseHas('articles', [
@@ -79,8 +86,8 @@ class ArticleRepositoryTest extends TestCase
     {
         $article = Article::factory()->create(['like' => 5]);
 
-        $this->articleRepository->incrementLike($article);
-        $result = $this->articleRepository->incrementLike($article);
+        $this->articleRepository->incrementLike($article->id);
+        $result = $this->articleRepository->incrementLike($article->id);
 
         $this->assertEquals(7, $result);
         $this->assertDatabaseHas('articles', [
