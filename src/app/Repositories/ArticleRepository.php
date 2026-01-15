@@ -20,18 +20,17 @@ class ArticleRepository
     /**
      * IDで記事を取得（コメント付き）
      */
-    public function getWithComments(int $id): ?Article
+    public function getWithComments(int $id): Article
     {
         return Article::with('comments')->findOrFail($id);
-
     }
 
     /**
      * IDで記事を取得
      */
-    public function getById(int $id): ?Article
+    public function getById(int $id): Article
     {
-        return Article::find($id);
+        return Article::findOrFail($id);
     }
 
     /**
@@ -39,13 +38,11 @@ class ArticleRepository
      */
     public function create(StoreArticleData $dto): Article
     {
-        $article = Article::create([
+        return Article::create([
             'title' => $dto->title,
             'content' => $dto->content,
             'user_id' => $dto->user_id,
         ]);
-
-        return $article;
     }
 
     /**
