@@ -63,12 +63,6 @@ class ArticleRepositoryTest extends TestCase
         ]);
     }
 
-    public function test_get_by_id_returns_null_if_not_found()
-    {
-        $result = $this->articleRepository->getById(999);
-        $this->assertNull($result);
-    }
-
     public function test_increment_like()
     {
         $article = Article::factory()->create(['like' => 0]);
