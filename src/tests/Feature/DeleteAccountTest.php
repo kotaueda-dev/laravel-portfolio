@@ -1,50 +1,36 @@
 <?php
 
-namespace Tests\Feature;
-
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
 use Spectator\Spectator;
-use Tests\TestCase;
 
-class DeleteAccountTest extends TestCase
-{
-    use RefreshDatabase;
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Spectator::using('api-docs.json');
-    }
+beforeEach(function () {
+    Spectator::using('api-docs.json');
+});
 
-    #[Test]
-    public function it_deletes_an_authenticated_user_account()
-    {
-        $user = User::factory()->create([
-            'password' => bcrypt('password123'),
-        ]);
+it('deletes an authenticated user account', function () {
+    $user = User::factory()->create([
+        'password' => bcrypt('password123'),
+    ]);
 
-        $response = $this->actingAs($user)->deleteJson('/api/user', [
-            'password' => 'password123',
-        ]);
+    $response = $this->actingAs($user)->deleteJson('/api/user', [
+        'password' => 'password123',
+    ]);
 
-        $response
-            ->assertValidRequest()
-            ->assertValidResponse(200);
-        $response->assertJson(['message' => 'Account deleted successfully.']);
+    $response
+        ->assertValidRequest()
+        ->assertValidResponse(200);
+    $response->assertJson(['message' => 'Account deleted successfully.']);
 
-        $this->assertDatabaseMissing('users', [
-            'id' => $user->id,
-        ]);
-    }
+    $this->assertDatabaseMissing('users', [
+        'id' => $user->id,
+    ]);
+});
 
-    #[Test]
-    public function it_returns_404_if_user_not_authenticated()
-    {
-        $response = $this->deleteJson('/api/user');
+it('returns 404 if user not authenticated', function () {
+    $response = $this->deleteJson('/api/user');
 
-        $response
-            ->assertValidResponse(401);
-    }
-}
+    $response
+        ->assertValidResponse(401);
+});

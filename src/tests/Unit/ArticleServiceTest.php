@@ -1,85 +1,65 @@
 <?php
 
-namespace Tests\Unit;
-
 use App\Data\StoreArticleData;
 use App\Data\UpdateArticleData;
 use App\Models\Article;
 use App\Repositories\ArticleRepository;
 use App\Services\ArticleCacheService;
 use App\Services\ArticleService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class ArticleServiceTest extends TestCase
-{
-    use RefreshDatabase;
+uses(Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    protected $articleService;
+beforeEach(function () {
+    $this->articleCacheService = $this->createMock(ArticleCacheService::class);
+    $this->articleRepository = $this->createMock(ArticleRepository::class);
+    $this->articleService = new ArticleService($this->articleRepository, $this->articleCacheService);
+});
 
-    protected $articleRepository;
+test('create article calls repository and clears cache', function () {
+    $dto = new StoreArticleData(
+        title: 'Test Title',
+        content: 'Test Content',
+        user_id: 1,
+    );
 
-    protected $articleCacheService;
+    $this->articleCacheService->expects($this->once())->method('forgetAllList');
+    $this->articleCacheService->expects($this->never())->method('forgetDetail');
+    $this->articleRepository->expects($this->once())->method('create')->with($dto)->willReturn(new Article($dto->toArray()));
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+    $this->articleService->create($dto);
+});
 
-        $this->articleCacheService = $this->createMock(ArticleCacheService::class);
-        $this->articleRepository = $this->createMock(ArticleRepository::class);
-        $this->articleService = new ArticleService($this->articleRepository, $this->articleCacheService);
-    }
+test('update article calls repository and clears cache', function () {
+    $article = Article::factory()->create();
 
-    public function test_create_article_calls_repository_and_clears_cache()
-    {
-        $dto = new StoreArticleData(
-            title: 'Test Title',
-            content: 'Test Content',
-            user_id: 1,
-        );
+    $dto = new UpdateArticleData(
+        title: 'Test Title',
+        content: 'Test Content',
+        id: $article->id,
+    );
 
-        $this->articleCacheService->expects($this->once())->method('forgetAllList');
-        $this->articleCacheService->expects($this->never())->method('forgetDetail');
-        $this->articleRepository->expects($this->once())->method('create')->with($dto)->willReturn(new Article($dto->toArray()));
+    $this->articleCacheService->expects($this->once())->method('forgetAllList');
+    $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($dto->id);
+    $this->articleRepository->expects($this->once())->method('update')->with($dto)->willReturn(true);
+    $this->articleService->update($dto);
+});
 
-        $this->articleService->create($dto);
-    }
+test('delete article calls repository and clears cache', function () {
+    $article = Article::factory()->create();
+    $this->articleCacheService->expects($this->once())->method('forgetAllList');
+    $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($article->id);
+    $this->articleRepository->expects($this->once())->method('delete')->with($article->id)->willReturn(true);
 
-    public function test_update_article_calls_repository_and_clears_cache()
-    {
-        $article = Article::factory()->create();
+    $this->articleService->delete($article->id);
+});
 
-        $dto = new UpdateArticleData(
-            title: 'Test Title',
-            content: 'Test Content',
-            id: $article->id,
-        );
+test('get article with comments returns null if not found', function () {
+    $this->articleCacheService->expects($this->once())
+        ->method('rememberDetail')
+        ->with(999, $this->callback(fn ($arg) => is_callable($arg)))
+        ->willReturn(null);
 
-        $this->articleCacheService->expects($this->once())->method('forgetAllList');
-        $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($dto->id);
-        $this->articleRepository->expects($this->once())->method('update')->with($dto)->willReturn(true);
-        $this->articleService->update($dto);
-    }
+    $result = $this->articleService->getWithComments(999);
 
-    public function test_delete_article_calls_repository_and_clears_cache()
-    {
-        $article = Article::factory()->create();
-        $this->articleCacheService->expects($this->once())->method('forgetAllList');
-        $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($article->id);
-        $this->articleRepository->expects($this->once())->method('delete')->with($article->id)->willReturn(true);
-
-        $this->articleService->delete($article->id);
-    }
-
-    public function test_get_article_with_comments_returns_null_if_not_found()
-    {
-        $this->articleCacheService->expects($this->once())
-            ->method('rememberDetail')
-            ->with(999, $this->isType('callable'))
-            ->willReturn(null);
-
-        $result = $this->articleService->getWithComments(999);
-
-        $this->assertNull($result);
-    }
-}
+    expect($result)->toBeNull();
+});

@@ -1,36 +1,24 @@
 <?php
 
-namespace Tests\Feature;
-
 use App\Models\Article;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
 use Spectator\Spectator;
-use Tests\TestCase;
 
-class ReadArticleTest extends TestCase
-{
-    use RefreshDatabase;
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Spectator::using('api-docs.json');
-    }
+beforeEach(function () {
+    Spectator::using('api-docs.json');
+});
 
-    #[Test]
-    public function it_can_fetch_a_single_article()
-    {
-        // Arrange
-        $article = Article::factory()->create();
+it('can fetch a single article', function () {
+    // Arrange
+    $article = Article::factory()->create();
 
-        // Act
-        $response = $this->getJson("/api/articles/{$article->id}");
+    // Act
+    $response = $this->getJson("/api/articles/{$article->id}");
 
-        // Assert
-        $response
-            ->assertValidRequest()
-            ->assertValidResponse(200);
-        $response->assertJsonPath('id', $article->id);
-    }
-}
+    // Assert
+    $response
+        ->assertValidRequest()
+        ->assertValidResponse(200);
+    $response->assertJsonPath('id', $article->id);
+});

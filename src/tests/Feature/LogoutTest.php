@@ -1,48 +1,34 @@
 <?php
 
-namespace Tests\Feature;
-
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use PHPUnit\Framework\Attributes\Test;
 use Spectator\Spectator;
-use Tests\TestCase;
 
-class LogoutTest extends TestCase
-{
-    use RefreshDatabase;
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Spectator::using('api-docs.json');
-    }
+beforeEach(function () {
+    Spectator::using('api-docs.json');
+});
 
-    #[Test]
-    public function test_user_can_logout_successfully()
-    {
-        $user = User::factory()->create();
+test('user can logout successfully', function () {
+    $user = User::factory()->create();
 
-        Sanctum::actingAs($user);
+    Sanctum::actingAs($user);
 
-        $response = $this->postJson('/api/logout');
+    $response = $this->postJson('/api/logout');
 
-        $response
-            ->assertValidRequest()
-            ->assertValidResponse(200);
-        $response->assertJson([
-            'message' => 'Logged out successfully.',
-        ]);
-    }
+    $response
+        ->assertValidRequest()
+        ->assertValidResponse(200);
+    $response->assertJson([
+        'message' => 'Logged out successfully.',
+    ]);
+});
 
-    #[Test]
-    public function test_guest_cannot_logout()
-    {
-        $response = $this->postJson('/api/logout');
+test('guest cannot logout', function () {
+    $response = $this->postJson('/api/logout');
 
-        $response
-            ->assertValidRequest()
-            ->assertValidResponse(401);
-    }
-}
+    $response
+        ->assertValidRequest()
+        ->assertValidResponse(401);
+});

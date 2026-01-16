@@ -1,64 +1,48 @@
 <?php
 
-namespace Tests\Feature;
-
 use Illuminate\Support\Facades\Config;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class LocaleServiceProviderTest extends TestCase
-{
-    private const NOT_FOUND_JA = 'リソースが見つかりません。';
+const NOT_FOUND_JA = 'リソースが見つかりません。';
+const NOT_FOUND_EN = 'Not found.';
 
-    private const NOT_FOUND_EN = 'Not found.';
+test('accept language ja returns japanese error message', function () {
+    Config::set('app.locale', 'ja');
 
-    #[Test]
-    public function accept_language_ja_returns_japanese_error_message(): void
-    {
-        Config::set('app.locale', 'ja');
+    $response = $this->getJson('/api/articles/99999999', [
+        'Accept-Language' => 'ja',
+    ]);
 
-        $response = $this->getJson('/api/articles/99999999', [
-            'Accept-Language' => 'ja',
-        ]);
+    $response->assertStatus(404);
+    $response->assertJson(['message' => NOT_FOUND_JA]);
+});
 
-        $response->assertStatus(404);
-        $response->assertJson(['message' => self::NOT_FOUND_JA]);
-    }
+test('accept language en returns english error message', function () {
+    Config::set('app.locale', 'en');
 
-    #[Test]
-    public function accept_language_en_returns_english_error_message(): void
-    {
-        Config::set('app.locale', 'en');
+    $response = $this->getJson('/api/articles/99999999', [
+        'Accept-Language' => 'en',
+    ]);
 
-        $response = $this->getJson('/api/articles/99999999', [
-            'Accept-Language' => 'en',
-        ]);
+    $response->assertStatus(404);
+    $response->assertJson(['message' => NOT_FOUND_EN]);
+});
 
-        $response->assertStatus(404);
-        $response->assertJson(['message' => self::NOT_FOUND_EN]);
-    }
+test('unsupported language falls back to default locale', function () {
+    Config::set('app.locale', 'ja');
 
-    #[Test]
-    public function unsupported_language_falls_back_to_default_locale(): void
-    {
-        Config::set('app.locale', 'ja');
+    $response = $this->getJson('/api/articles/99999999', [
+        'Accept-Language' => 'fr',
+    ]);
 
-        $response = $this->getJson('/api/articles/99999999', [
-            'Accept-Language' => 'fr',
-        ]);
+    $response->assertStatus(404);
+    $response->assertJson(['message' => NOT_FOUND_JA]);
+});
 
-        $response->assertStatus(404);
-        $response->assertJson(['message' => self::NOT_FOUND_JA]);
-    }
+test('no accept language header uses default locale', function () {
+    Config::set('app.locale', 'ja');
 
-    #[Test]
-    public function no_accept_language_header_uses_default_locale(): void
-    {
-        Config::set('app.locale', 'ja');
+    $response = $this->getJson('/api/articles/99999999');
 
-        $response = $this->getJson('/api/articles/99999999');
-
-        $response->assertStatus(404);
-        $response->assertJson(['message' => self::NOT_FOUND_JA]);
-    }
-}
+    $response->assertStatus(404);
+    $response->assertJson(['message' => NOT_FOUND_JA]);
+});

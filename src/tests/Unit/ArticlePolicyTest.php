@@ -1,76 +1,49 @@
 <?php
 
-namespace Tests\Unit;
-
 use App\Models\Article;
 use App\Models\User;
 use App\Policies\ArticlePolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class ArticlePolicyTest extends TestCase
-{
-    use RefreshDatabase;
+uses(Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    private ArticlePolicy $policy;
+beforeEach(function () {
+    $this->policy = new ArticlePolicy;
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->policy = new ArticlePolicy;
-    }
+test('user can update own article', function () {
+    $user = User::factory()->create();
+    $article = Article::factory()->create(['user_id' => $user->id]);
 
-    /**
-     * ユーザーが自分の記事を更新できることをテスト
-     */
-    public function test_user_can_update_own_article(): void
-    {
-        $user = User::factory()->create();
-        $article = Article::factory()->create(['user_id' => $user->id]);
+    $result = $this->policy->update($user, $article);
 
-        $result = $this->policy->update($user, $article);
+    expect($result)->toBeTrue();
+});
 
-        $this->assertTrue($result);
-    }
+test('user cannot update other user article', function () {
+    $user = User::factory()->create();
+    $user_2 = User::factory()->create();
+    $article = Article::factory()->create(['user_id' => $user_2->id]);
 
-    /**
-     * ユーザーが他人の記事を更新できないことをテスト
-     */
-    public function test_user_cannot_update_other_user_article(): void
-    {
-        $user = User::factory()->create();
-        $user_2 = User::factory()->create();
-        $article = Article::factory()->create(['user_id' => $user_2->id]);
+    $result = $this->policy->update($user, $article);
 
-        $result = $this->policy->update($user, $article);
+    expect($result)->toBeFalse();
+});
 
-        $this->assertFalse($result);
-    }
+test('user can delete own article', function () {
+    $user = User::factory()->create();
+    $article = Article::factory()->create(['user_id' => $user->id]);
 
-    /**
-     * ユーザーが自分の記事を削除できることをテスト
-     */
-    public function test_user_can_delete_own_article(): void
-    {
-        $user = User::factory()->create();
-        $article = Article::factory()->create(['user_id' => $user->id]);
+    $result = $this->policy->delete($user, $article);
 
-        $result = $this->policy->delete($user, $article);
+    expect($result)->toBeTrue();
+});
 
-        $this->assertTrue($result);
-    }
+test('user cannot delete other user article', function () {
+    $user = User::factory()->create();
+    $user_2 = User::factory()->create();
+    $article = Article::factory()->create(['user_id' => $user_2->id]);
 
-    /**
-     * ユーザーが他人の記事を削除できないことをテスト
-     */
-    public function test_user_cannot_delete_other_user_article(): void
-    {
-        $user = User::factory()->create();
-        $user_2 = User::factory()->create();
-        $article = Article::factory()->create(['user_id' => $user_2->id]);
+    $result = $this->policy->delete($user, $article);
 
-        $result = $this->policy->delete($user, $article);
-
-        $this->assertFalse($result);
-    }
-}
+    expect($result)->toBeFalse();
+});

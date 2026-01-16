@@ -1,92 +1,76 @@
 <?php
 
-namespace Tests\Unit;
-
 use App\Data\StoreArticleData;
 use App\Data\UpdateArticleData;
 use App\Models\Article;
 use App\Models\User;
 use App\Repositories\ArticleRepository;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class ArticleRepositoryTest extends TestCase
-{
-    use RefreshDatabase;
+uses(Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    protected $articleRepository;
+beforeEach(function () {
+    $this->articleRepository = new ArticleRepository;
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->articleRepository = new ArticleRepository;
-    }
+test('create article', function () {
+    $user = User::factory()->create();
 
-    public function test_create_article()
-    {
-        $user = User::factory()->create();
+    $dto = new StoreArticleData(
+        title: 'Test Title',
+        content: 'Test Content',
+        user_id: $user->id,
+    );
 
-        $dto = new StoreArticleData(
-            title: 'Test Title',
-            content: 'Test Content',
-            user_id: $user->id,
-        );
+    $article = $this->articleRepository->create($dto);
 
-        $article = $this->articleRepository->create($dto);
+    $this->assertDatabaseHas('articles', $dto->toArray());
+    expect($article)->toBeInstanceOf(Article::class);
+});
 
-        $this->assertDatabaseHas('articles', $dto->toArray());
-        $this->assertInstanceOf(Article::class, $article);
-    }
+test('update article', function () {
+    $article = Article::factory()->create();
 
-    public function test_update_article()
-    {
-        $article = Article::factory()->create();
+    $dto = UpdateArticleData::from([
+        'id' => $article->id,
+        'title' => 'Updated Title',
+    ]);
 
-        $dto = UpdateArticleData::from([
-            'id' => $article->id,
-            'title' => 'Updated Title',
-        ]);
+    $this->articleRepository->update($dto);
 
-        $this->articleRepository->update($dto);
+    $this->assertDatabaseHas('articles', $dto->toArray());
+});
 
-        $this->assertDatabaseHas('articles', $dto->toArray());
-    }
+test('delete article', function () {
+    $article = Article::factory()->create();
 
-    public function test_delete_article()
-    {
-        $article = Article::factory()->create();
+    $this->articleRepository->delete($article->id);
 
-        $this->articleRepository->delete($article->id);
+    $this->assertDatabaseMissing('articles', [
+        'id' => $article->id,
+    ]);
+});
 
-        $this->assertDatabaseMissing('articles', [
-            'id' => $article->id,
-        ]);
-    }
+test('increment like', function () {
+    $article = Article::factory()->create(['like' => 0]);
 
-    public function test_increment_like()
-    {
-        $article = Article::factory()->create(['like' => 0]);
+    $result = $this->articleRepository->incrementLike($article->id);
 
-        $result = $this->articleRepository->incrementLike($article->id);
+    expect($result)->toEqual(1);
+    $this->assertDatabaseHas('articles', [
+        'id' => $article->id,
+        'like' => 1,
+    ]);
+});
 
-        $this->assertEquals(1, $result);
-        $this->assertDatabaseHas('articles', [
-            'id' => $article->id,
-            'like' => 1,
-        ]);
-    }
+test('increment like multiple times', function () {
+    $article = Article::factory()->create(['like' => 5]);
 
-    public function test_increment_like_multiple_times()
-    {
-        $article = Article::factory()->create(['like' => 5]);
+    $this->articleRepository->incrementLike($article->id);
+    $result = $this->articleRepository->incrementLike($article->id);
 
-        $this->articleRepository->incrementLike($article->id);
-        $result = $this->articleRepository->incrementLike($article->id);
-
-        $this->assertEquals(7, $result);
-        $this->assertDatabaseHas('articles', [
-            'id' => $article->id,
-            'like' => 7,
-        ]);
-    }
-}
+    expect($result)->toEqual(7);
+    $this->assertDatabaseHas('articles', [
+        'id' => $article->id,
+        'like' => 7,
+    ]);
+});

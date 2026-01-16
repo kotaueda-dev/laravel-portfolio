@@ -1,56 +1,42 @@
 <?php
 
-namespace Tests\Feature;
-
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
 use Spectator\Spectator;
-use Tests\TestCase;
 
-class LoginTest extends TestCase
-{
-    use RefreshDatabase;
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Spectator::using('api-docs.json');
-    }
+beforeEach(function () {
+    Spectator::using('api-docs.json');
+});
 
-    #[Test]
-    public function test_user_can_login_with_valid_credentials()
-    {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password123'),
-        ]);
+test('user can login with valid credentials', function () {
+    $user = User::factory()->create([
+        'email' => 'test@example.com',
+        'password' => bcrypt('password123'),
+    ]);
 
-        $response = $this->postJson('/api/login', [
-            'email' => 'test@example.com',
-            'password' => 'password123',
-        ]);
+    $response = $this->postJson('/api/login', [
+        'email' => 'test@example.com',
+        'password' => 'password123',
+    ]);
 
-        $response
-            ->assertValidRequest()
-            ->assertValidResponse(200);
-        $response->assertJsonStructure([
-            'message',
-            'access_token',
-            'user' => ['id', 'name', 'email', 'created_at', 'updated_at'],
-        ]);
-    }
+    $response
+        ->assertValidRequest()
+        ->assertValidResponse(200);
+    $response->assertJsonStructure([
+        'message',
+        'access_token',
+        'user' => ['id', 'name', 'email', 'created_at', 'updated_at'],
+    ]);
+});
 
-    #[Test]
-    public function test_user_cannot_login_with_invalid_credentials()
-    {
-        $response = $this->postJson('/api/login', [
-            'email' => 'wrong@example.com',
-            'password' => 'wrongpassword',
-        ]);
+test('user cannot login with invalid credentials', function () {
+    $response = $this->postJson('/api/login', [
+        'email' => 'wrong@example.com',
+        'password' => 'wrongpassword',
+    ]);
 
-        $response
-            ->assertValidRequest()
-            ->assertValidResponse(401);
-    }
-}
+    $response
+        ->assertValidRequest()
+        ->assertValidResponse(401);
+});
