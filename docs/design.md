@@ -7,7 +7,7 @@
 
 ### 1.2 技術スタック
 - **フレームワーク**: Laravel 12.0
-- **PHP**: 8.2以上
+- **PHP**: 8.5以上
 - **データベース**: SQLite（開発環境）
 - **コンテナ**: Docker Compose
 - **認証**: Laravel Sanctum 4.0（実装予定）
@@ -36,7 +36,7 @@
 │   Docker Container         │
 │  ┌────────────────────┐    │
 │  │ Laravel App Server │    │
-│  │  - PHP 8.2+        │    │
+│  │  - PHP 8.5         │    │
 │  │  - Laravel 12      │    │
 │  │  - Port: 8000      │    │
 │  └─────────┬──────────┘    │
