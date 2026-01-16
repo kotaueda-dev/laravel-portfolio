@@ -7,8 +7,6 @@ use App\Repositories\ArticleRepository;
 use App\Services\ArticleCacheService;
 use App\Services\ArticleService;
 
-uses(Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
-
 beforeEach(function () {
     $this->articleCacheService = $this->createMock(ArticleCacheService::class);
     $this->articleRepository = $this->createMock(ArticleRepository::class);

@@ -4,8 +4,6 @@ use App\Models\Article;
 use App\Models\User;
 use App\Policies\ArticlePolicy;
 
-uses(Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
-
 beforeEach(function () {
     $this->policy = new ArticlePolicy;
 });

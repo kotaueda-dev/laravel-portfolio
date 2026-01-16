@@ -6,8 +6,6 @@ use App\Models\Article;
 use App\Models\User;
 use App\Repositories\ArticleRepository;
 
-uses(Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
-
 beforeEach(function () {
     $this->articleRepository = new ArticleRepository;
 });
