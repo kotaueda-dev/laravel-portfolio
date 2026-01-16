@@ -15,7 +15,7 @@ beforeEach(function () {
     $this->articleService = new ArticleService($this->articleRepository, $this->articleCacheService);
 });
 
-test('create article calls repository and clears cache', function () {
+test('記事作成時にリポジトリを呼び出しキャッシュをクリアする', function () {
     $dto = new StoreArticleData(
         title: 'Test Title',
         content: 'Test Content',
@@ -29,7 +29,7 @@ test('create article calls repository and clears cache', function () {
     $this->articleService->create($dto);
 });
 
-test('update article calls repository and clears cache', function () {
+test('記事更新時にリポジトリを呼び出しキャッシュをクリアする', function () {
     $article = Article::factory()->create();
 
     $dto = new UpdateArticleData(
@@ -44,7 +44,7 @@ test('update article calls repository and clears cache', function () {
     $this->articleService->update($dto);
 });
 
-test('delete article calls repository and clears cache', function () {
+test('記事削除時にリポジトリを呼び出しキャッシュをクリアする', function () {
     $article = Article::factory()->create();
     $this->articleCacheService->expects($this->once())->method('forgetAllList');
     $this->articleCacheService->expects($this->once())->method('forgetDetail')->with($article->id);
@@ -53,7 +53,7 @@ test('delete article calls repository and clears cache', function () {
     $this->articleService->delete($article->id);
 });
 
-test('get article with comments returns null if not found', function () {
+test('コメント付き記事取得で見つからない場合nullを返す', function () {
     $this->articleCacheService->expects($this->once())
         ->method('rememberDetail')
         ->with(999, $this->callback(fn ($arg) => is_callable($arg)))

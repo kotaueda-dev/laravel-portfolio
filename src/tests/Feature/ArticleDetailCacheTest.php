@@ -14,7 +14,7 @@ beforeEach(function () {
     $this->cache = $this->app->make(ArticleCacheService::class);
 });
 
-test('show is cached and invalidated on update', function () {
+test('記事詳細がキャッシュされ、更新時に無効化される', function () {
     // 記事を作成
     $user = User::factory()->create();
     $this->actingAs($user);
@@ -60,7 +60,7 @@ test('show is cached and invalidated on update', function () {
     expect('API Updated Title')->toEqual($response4->json('title'));
 });
 
-test('like invalidates cache', function () {
+test('いいねがキャッシュを無効化する', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
@@ -81,7 +81,7 @@ test('like invalidates cache', function () {
     expect($cachedAfter)->toBeNull();
 });
 
-test('comment creation invalidates cache', function () {
+test('コメント作成がキャッシュを無効化する', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 

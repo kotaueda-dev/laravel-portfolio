@@ -9,7 +9,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-test('authenticated user can create article', function () {
+test('認証済みユーザーが記事を作成できる', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->postJson('/api/articles', [
@@ -31,7 +31,7 @@ test('authenticated user can create article', function () {
     ]);
 });
 
-test('guest cannot create article', function () {
+test('ゲストユーザーは記事を作成できない', function () {
     $response = $this->postJson('/api/articles', [
         'title' => 'Test Article',
         'content' => 'This is a test article.',

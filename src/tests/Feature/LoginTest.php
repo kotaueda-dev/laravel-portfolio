@@ -9,7 +9,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-test('user can login with valid credentials', function () {
+test('正しい認証情報でログインできる', function () {
     $user = User::factory()->create([
         'email' => 'test@example.com',
         'password' => bcrypt('password123'),
@@ -30,7 +30,7 @@ test('user can login with valid credentials', function () {
     ]);
 });
 
-test('user cannot login with invalid credentials', function () {
+test('誤った認証情報ではログインできない', function () {
     $response = $this->postJson('/api/login', [
         'email' => 'wrong@example.com',
         'password' => 'wrongpassword',

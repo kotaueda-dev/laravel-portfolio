@@ -8,7 +8,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-it('registers a new user successfully', function () {
+it('新規ユーザーを正常に登録できる', function () {
     $response = $this->postJson('/api/signup', [
         'name' => 'Test User',
         'email' => 'testuser@example.com',
@@ -27,7 +27,7 @@ it('registers a new user successfully', function () {
     ]);
 });
 
-it('fails to register with invalid data', function () {
+it('不正なデータでは登録に失敗する', function () {
     $response = $this->postJson('/api/signup', [
         'name' => '',
         'email' => 'not-an-email',

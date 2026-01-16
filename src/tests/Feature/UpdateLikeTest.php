@@ -9,7 +9,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-it('can increment article likes', function () {
+it('記事のいいね数を増やせる', function () {
     // Arrange
     $article = Article::factory()->create(['like' => 0]);
 

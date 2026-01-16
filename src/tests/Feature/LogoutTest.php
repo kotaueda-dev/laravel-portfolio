@@ -10,7 +10,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-test('user can logout successfully', function () {
+test('ログアウトが正常に実行できる', function () {
     $user = User::factory()->create();
 
     Sanctum::actingAs($user);
@@ -25,7 +25,7 @@ test('user can logout successfully', function () {
     ]);
 });
 
-test('guest cannot logout', function () {
+test('ゲストユーザーはログアウトできない', function () {
     $response = $this->postJson('/api/logout');
 
     $response

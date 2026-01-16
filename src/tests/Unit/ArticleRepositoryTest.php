@@ -12,7 +12,7 @@ beforeEach(function () {
     $this->articleRepository = new ArticleRepository;
 });
 
-test('create article', function () {
+test('記事を作成する', function () {
     $user = User::factory()->create();
 
     $dto = new StoreArticleData(
@@ -27,7 +27,7 @@ test('create article', function () {
     expect($article)->toBeInstanceOf(Article::class);
 });
 
-test('update article', function () {
+test('記事を更新する', function () {
     $article = Article::factory()->create();
 
     $dto = UpdateArticleData::from([
@@ -40,7 +40,7 @@ test('update article', function () {
     $this->assertDatabaseHas('articles', $dto->toArray());
 });
 
-test('delete article', function () {
+test('記事を削除する', function () {
     $article = Article::factory()->create();
 
     $this->articleRepository->delete($article->id);
@@ -50,7 +50,7 @@ test('delete article', function () {
     ]);
 });
 
-test('increment like', function () {
+test('いいね数を増やす', function () {
     $article = Article::factory()->create(['like' => 0]);
 
     $result = $this->articleRepository->incrementLike($article->id);
@@ -62,7 +62,7 @@ test('increment like', function () {
     ]);
 });
 
-test('increment like multiple times', function () {
+test('いいね数を複数回増やす', function () {
     $article = Article::factory()->create(['like' => 5]);
 
     $this->articleRepository->incrementLike($article->id);

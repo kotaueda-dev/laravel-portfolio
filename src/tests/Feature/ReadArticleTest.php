@@ -9,7 +9,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-it('can fetch a single article', function () {
+it('単一の記事を取得できる', function () {
     // Arrange
     $article = Article::factory()->create();
 

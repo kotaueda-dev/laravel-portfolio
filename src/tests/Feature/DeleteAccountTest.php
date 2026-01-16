@@ -9,7 +9,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-it('deletes an authenticated user account', function () {
+it('認証済みユーザーのアカウントを削除できる', function () {
     $user = User::factory()->create([
         'password' => bcrypt('password123'),
     ]);
@@ -28,7 +28,7 @@ it('deletes an authenticated user account', function () {
     ]);
 });
 
-it('returns 404 if user not authenticated', function () {
+it('未認証の場合は401を返す', function () {
     $response = $this->deleteJson('/api/user');
 
     $response

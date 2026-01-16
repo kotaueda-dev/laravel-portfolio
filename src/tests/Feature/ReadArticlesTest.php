@@ -9,7 +9,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-it('can fetch paginated articles', function () {
+it('ページネーション付き記事一覧を取得できる', function () {
     // Arrange
     Article::factory()->count(config('pagination.default_per_page'))->create();
 

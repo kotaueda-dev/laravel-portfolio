@@ -12,7 +12,7 @@ beforeEach(function () {
     $this->cache = $this->app->make(ArticleCacheService::class);
 });
 
-test('index is cached', function () {
+test('記事一覧がキャッシュされる', function () {
     $perPage = (int) config('pagination.default_per_page');
     $totalArticles = $perPage + 2;
     Article::factory()->count($totalArticles)->create();
@@ -26,7 +26,7 @@ test('index is cached', function () {
     expect($totalArticles)->toEqual($response1->json('meta.total'));
 });
 
-test('index cache is cleared on update', function () {
+test('記事更新時に一覧キャッシュがクリアされる', function () {
     $user = \App\Models\User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user->id]);
 
@@ -41,7 +41,7 @@ test('index cache is cleared on update', function () {
     expect($this->cache->getList('1'))->toBeNull();
 });
 
-test('index cache is cleared on store', function () {
+test('記事作成時に一覧キャッシュがクリアされる', function () {
     $user = \App\Models\User::factory()->create();
     Article::factory()->count(3)->create();
 
@@ -57,7 +57,7 @@ test('index cache is cleared on store', function () {
     expect($this->cache->getList('1'))->toBeNull();
 });
 
-test('index cache is cleared on delete', function () {
+test('記事削除時に一覧キャッシュがクリアされる', function () {
     $user = \App\Models\User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user->id]);
 
@@ -70,7 +70,7 @@ test('index cache is cleared on delete', function () {
     expect($this->cache->getList('1'))->toBeNull();
 });
 
-test('index cache is cleared on comment store', function () {
+test('コメント作成時に一覧キャッシュがクリアされる', function () {
     $user = \App\Models\User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user->id]);
 

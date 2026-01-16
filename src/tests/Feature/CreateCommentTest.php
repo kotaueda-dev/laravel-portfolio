@@ -9,7 +9,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-it('can create a comment for an article', function () {
+it('記事にコメントを作成できる', function () {
     // Arrange
     $article = Article::factory()->create();
     $data = [

@@ -10,7 +10,7 @@ beforeEach(function () {
     $this->policy = new ArticlePolicy;
 });
 
-test('user can update own article', function () {
+test('ユーザーは自分の記事を更新できる', function () {
     $user = User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user->id]);
 
@@ -19,7 +19,7 @@ test('user can update own article', function () {
     expect($result)->toBeTrue();
 });
 
-test('user cannot update other user article', function () {
+test('ユーザーは他人の記事を更新できない', function () {
     $user = User::factory()->create();
     $user_2 = User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user_2->id]);
@@ -29,7 +29,7 @@ test('user cannot update other user article', function () {
     expect($result)->toBeFalse();
 });
 
-test('user can delete own article', function () {
+test('ユーザーは自分の記事を削除できる', function () {
     $user = User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user->id]);
 
@@ -38,7 +38,7 @@ test('user can delete own article', function () {
     expect($result)->toBeTrue();
 });
 
-test('user cannot delete other user article', function () {
+test('ユーザーは他人の記事を削除できない', function () {
     $user = User::factory()->create();
     $user_2 = User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user_2->id]);

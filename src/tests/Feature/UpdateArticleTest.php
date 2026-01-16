@@ -10,7 +10,7 @@ beforeEach(function () {
     Spectator::using('api-docs.json');
 });
 
-test('update article', function () {
+test('記事を更新できる', function () {
     $user = User::factory()->create();
     $article = Article::factory()->create(['user_id' => $user->id]);
 
@@ -29,7 +29,7 @@ test('update article', function () {
     ]);
 });
 
-test('unauthorized update article', function () {
+test('権限がない記事は更新できない', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
     $article = Article::factory()->create(['user_id' => $otherUser->id]);
