@@ -1,5 +1,5 @@
 
-FROM php:8.2-fpm-alpine
+FROM php:8.5-fpm-alpine
 
 # composerコマンドのインストール
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -20,7 +20,7 @@ RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 RUN pecl install redis && docker-php-ext-enable redis
 
-RUN docker-php-ext-install pdo pdo_mysql opcache zip intl
+RUN docker-php-ext-install pdo_mysql zip intl
 
 RUN useradd -m -u 1000 laravel
 RUN chown laravel:laravel /var/www/html

@@ -62,7 +62,7 @@ docker compose exec laravel-app-server php artisan test
 ## プロジェクト特有のパターン & 規約
 
 ### コンテナセットアップ
-- **メインコンテナ**: `laravel-app-server`（PHP 8.2+ with Laravel 環境）
+- **メインコンテナ**: `laravel-app-server`（PHP 8.5 with Laravel 環境）
 - **作業ディレクトリ**: `/var/www/html`（`./src` からマウント）
 - **カスタム PHP 設定**: `docker-config/php/php.ini`（コンテナビルド時に適用）
 
