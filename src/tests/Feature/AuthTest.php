@@ -1,11 +1,20 @@
 <?php
 
 use App\Models\User;
+use Spectator\Spectator;
+
+beforeEach(function () {
+    Spectator::using('api-docs.json');
+});
 
 describe('ユーザー登録API', function () {
     describe('正常系', function () {
         test('201:有効なデータでユーザーを登録できる', function () {
-            $validData = signupData();
+            $validData = [
+                'name' => 'Test User',
+                'email' => 'testuser@example.com',
+                'password' => 'password123',
+            ];
 
             $response = $this->postJson('/api/signup', $validData);
 
@@ -33,7 +42,12 @@ describe('ユーザー登録API', function () {
         });
 
         test('422:既に存在するメールアドレスでは登録に失敗する', function () {
-            $requestData = signupData();
+            $requestData = [
+                'name' => 'Test User',
+                'email' => 'testuser@example.com',
+                'password' => 'password123',
+            ];
+
             User::factory()->create([
                 'email' => $requestData['email'],
             ]);
