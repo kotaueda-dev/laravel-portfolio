@@ -14,6 +14,78 @@ beforeEach(function () {
     $this->cache = $this->app->make(ArticleCacheService::class);
 });
 
+test('記事一覧がキャッシュされる', function () {
+    $perPage = (int) config('pagination.default_per_page');
+    $totalArticles = $perPage + 2;
+    Article::factory()->count($totalArticles)->create();
+
+    $response1 = $this->getJson('/api/articles?page=1');
+    $response1->assertStatus(200);
+
+    $cached = $this->cache->getList('1');
+    expect($cached)->not->toBeNull();
+    expect($totalArticles)->toEqual($cached->total());
+    expect($totalArticles)->toEqual($response1->json('meta.total'));
+});
+
+test('記事更新時に一覧キャッシュがクリアされる', function () {
+    $user = \App\Models\User::factory()->create();
+    $article = Article::factory()->create(['user_id' => $user->id]);
+
+    $this->getJson('/api/articles');
+    expect($this->cache->getList('1'))->not->toBeNull();
+
+    $this->actingAs($user);
+    $this->putJson("/api/articles/{$article->id}", [
+        'title' => 'updated title',
+    ])->assertStatus(200);
+
+    expect($this->cache->getList('1'))->toBeNull();
+});
+
+test('記事作成時に一覧キャッシュがクリアされる', function () {
+    $user = \App\Models\User::factory()->create();
+    Article::factory()->count(3)->create();
+
+    $this->getJson('/api/articles');
+    expect($this->cache->getList('1'))->not->toBeNull();
+
+    $this->actingAs($user);
+    $this->postJson('/api/articles', [
+        'title' => 'new article',
+        'content' => 'body',
+    ])->assertStatus(201);
+
+    expect($this->cache->getList('1'))->toBeNull();
+});
+
+test('記事削除時に一覧キャッシュがクリアされる', function () {
+    $user = \App\Models\User::factory()->create();
+    $article = Article::factory()->create(['user_id' => $user->id]);
+
+    $this->getJson('/api/articles');
+    expect($this->cache->getList('1'))->not->toBeNull();
+
+    $this->actingAs($user);
+    $this->deleteJson("/api/articles/{$article->id}")->assertStatus(200);
+
+    expect($this->cache->getList('1'))->toBeNull();
+});
+
+test('コメント作成時に一覧キャッシュがクリアされる', function () {
+    $user = \App\Models\User::factory()->create();
+    $article = Article::factory()->create(['user_id' => $user->id]);
+
+    $this->getJson('/api/articles');
+    expect($this->cache->getList('1'))->not->toBeNull();
+
+    $this->postJson("/api/articles/{$article->id}/comments", [
+        'message' => 'test comment',
+    ])->assertStatus(201);
+
+    expect($this->cache->getList('1'))->toBeNull();
+});
+
 test('記事詳細がキャッシュされ、更新時に無効化される', function () {
     // 記事を作成
     $user = User::factory()->create();
