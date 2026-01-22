@@ -7,7 +7,7 @@ services:
     extra_hosts:
       - "host.docker.internal:172.25.199.83"
     volumes:
-      - ./src:/var/www/html
+      - ./backend:/var/www/html
       - ./docker-config/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     depends_on:
       - laravel-db-server
@@ -21,7 +21,7 @@ services:
       - '8000:80'
 
     volumes:
-      - ./src:/var/www/html
+      - ./backend:/var/www/html
       - ./docker-config/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - laravel-app-server

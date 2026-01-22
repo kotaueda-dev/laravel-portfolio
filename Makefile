@@ -1,5 +1,5 @@
 # 変数定義
-SRC_DIR := src
+LARAVEL_DIR := backend
 APP_SERVER := laravel-app-server
 WEB_SERVER := laravel-web-server
 DB_SERVER := laravel-db-server
@@ -12,7 +12,7 @@ CACHE_SERVER := laravel-cache-server
 
 # Laravelプロジェクトの新規作成
 setup:
-	@if [ ! -d $(SRC_DIR)/vendor ]; then \
+	@if [ ! -d $(LARAVEL_DIR)/vendor ]; then \
 		make up; \
 		docker compose cp ./docker-config/php/.env.laravel $(APP_SERVER):/var/www/html/.env; \
 		docker compose cp ./docker-config/php/.env.testing.laravel $(APP_SERVER):/var/www/html/.env.testing; \
