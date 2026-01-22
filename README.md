@@ -1,44 +1,60 @@
 # Laravel Portfolio
 
 ## プロジェクト概要
-このプロジェクトは、記事（Article）とコメント（Comment）を管理する **Laravel 12 REST API アプリケーション**です。Docker を使用してコンテナ化されており、フロントエンドは含まれていません。
+このプロジェクトは、記事（Article）とコメント（Comment）を管理する **Laravel 12 REST API + Next.js フロントエンド** モノレポプロジェクトです。Docker を使用してコンテナ化されており、バックエンドは PHP-FPM で複数ワーカー処理に対応しています。
 
 ## 主な機能
 - 記事の投稿、一覧表示、詳細表示
 - 記事へのいいね機能
 - 記事へのコメント投稿
+- Next.js でのフロントエンド実装
 
 ## 技術スタック
-- **フレームワーク**: Laravel 12
-- **言語**: PHP 8.5+
+- **バックエンド**: Laravel 12 + PHP 8.5 (PHP-FPM)
+- **フロントエンド**: Next.js 14 + TypeScript + Tailwind CSS
+- **言語**: PHP 8.5+、TypeScript
 - **データベース**: SQLite（開発環境）
+- **キャッシュ**: Redis
 - **コンテナ**: Docker Compose
+- **Webサーバ**: Nginx
 - **認証**: Laravel Sanctum（将来の実装予定）
 - **テスト**: PHPUnit
+- **パッケージ管理**: pnpm（ワークスペース）
 
 ## セットアップ手順
 
 ### 必要要件
-- Docker
-- Docker Compose
+- Docker & Docker Compose
+- Node.js 24 LTS （nvm で管理）
+- pnpm
 
 ### 初期セットアップ
-以下のコマンドを実行してください：
 ```bash
+# 1. Laravelセットアップ
 make setup
+
+# 2. フロントエンド依存関係インストール
+pnpm install
+
+# 3. nvm設定確認
+nvm use
 ```
-これにより、以下が自動的に実行されます：
-- Docker コンテナの起動
-- Composer 依存関係のインストール
-- アプリケーションキーの生成
-- データベースマイグレーション
-- 開発サーバーの起動
 
 ### 開発サーバーの起動
+
+**ターミナル 1: バックエンド**
 ```bash
-make serve
+make up          # Docker コンテナ起動
+make logs        # ログ確認
 ```
-アプリケーションは `http://localhost:8000` で利用可能です。
+
+**ターミナル 2: フロントエンド**
+```bash
+cd frontend && pnpm dev
+```
+
+- バックエンド API: `http://localhost:8000/api`
+- フロントエンド: `http://localhost:3000`
 
 ## API エンドポイント
 

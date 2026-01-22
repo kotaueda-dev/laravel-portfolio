@@ -60,8 +60,6 @@ mysql:
 	docker compose exec $(DB_SERVER) mysql -u root -p
 
 # Laravel関連コマンド
-serve:
-	docker compose exec -d $(APP_SERVER) php artisan serve --host 0.0.0.0 --port 8000
 tinker:
 	docker compose exec $(APP_SERVER) php artisan tinker
 migrate:

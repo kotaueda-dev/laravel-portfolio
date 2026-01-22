@@ -28,3 +28,5 @@ RUN chown laravel:laravel /var/www/html
 WORKDIR /var/www/html
 
 USER laravel
+
+CMD ["php-fpm"]
