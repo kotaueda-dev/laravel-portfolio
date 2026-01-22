@@ -4,17 +4,22 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-interface ArticleResponse {
+// APIのスキーマ定義
+export interface ArticleSummary {
   id: number;
+  user_id: number;
   title: string;
-  content: string;
-  username: string;
-  like_count: number;
+  like: number;
   created_at: string;
   updated_at: string;
 }
 
-interface CommentResponse {
+export interface ArticleDetail extends ArticleSummary {
+  content: string;
+  comments?: unknown; // コメントは現状型が定義されていないため保留
+}
+
+export interface CommentResponse {
   id: number;
   message: string;
   article_id: number;
@@ -22,23 +27,36 @@ interface CommentResponse {
   updated_at: string;
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  links: unknown;
+  meta: {
+    current_page: number;
+    from: number | null;
+    last_page: number;
+    per_page?: number;
+    to: number | null;
+    total?: number;
+  };
+}
+
 export const apiClient = {
   /**
    * 全記事一覧を取得
    */
-  async getArticles() {
-    const res = await fetch(`${API_URL}/articles`);
+  async getArticles(page = 1) {
+    const res = await fetch(`${API_URL}/articles?page=${page}`, { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch articles');
-    return res.json() as Promise<ArticleResponse[]>;
+    return res.json() as Promise<PaginatedResponse<ArticleSummary>>;
   },
 
   /**
    * 記事詳細を取得
    */
   async getArticle(id: number) {
-    const res = await fetch(`${API_URL}/articles/${id}`);
+    const res = await fetch(`${API_URL}/articles/${id}`, { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch article');
-    return res.json() as Promise<ArticleResponse>;
+    return res.json() as Promise<ArticleDetail>;
   },
 
   /**
@@ -55,7 +73,7 @@ export const apiClient = {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to create article');
-    return res.json() as Promise<ArticleResponse>;
+    return res.json() as Promise<ArticleDetail>;
   },
 
   /**
@@ -66,7 +84,7 @@ export const apiClient = {
       method: 'POST',
     });
     if (!res.ok) throw new Error('Failed to like article');
-    return res.json() as Promise<ArticleResponse>;
+    return res.json() as Promise<ArticleDetail>;
   },
 
   /**
