@@ -1,92 +1,74 @@
 <?php
 
-namespace Tests\Unit;
-
 use App\Data\StoreArticleData;
 use App\Data\UpdateArticleData;
 use App\Models\Article;
 use App\Models\User;
 use App\Repositories\ArticleRepository;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class ArticleRepositoryTest extends TestCase
-{
-    use RefreshDatabase;
+beforeEach(function () {
+    $this->articleRepository = new ArticleRepository;
+});
 
-    protected $articleRepository;
+test('記事を作成する', function () {
+    $user = User::factory()->create();
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->articleRepository = new ArticleRepository;
-    }
+    $dto = new StoreArticleData(
+        title: 'Test Title',
+        content: 'Test Content',
+        user_id: $user->id,
+    );
 
-    public function test_create_article()
-    {
-        $user = User::factory()->create();
+    $article = $this->articleRepository->create($dto);
 
-        $dto = new StoreArticleData(
-            title: 'Test Title',
-            content: 'Test Content',
-            user_id: $user->id,
-        );
+    $this->assertDatabaseHas('articles', $dto->toArray());
+    expect($article)->toBeInstanceOf(Article::class);
+});
 
-        $article = $this->articleRepository->create($dto);
+test('記事を更新する', function () {
+    $article = Article::factory()->create();
 
-        $this->assertDatabaseHas('articles', $dto->toArray());
-        $this->assertInstanceOf(Article::class, $article);
-    }
+    $dto = UpdateArticleData::from([
+        'id' => $article->id,
+        'title' => 'Updated Title',
+    ]);
 
-    public function test_update_article()
-    {
-        $article = Article::factory()->create();
+    $this->articleRepository->update($dto);
 
-        $dto = UpdateArticleData::from([
-            'id' => $article->id,
-            'title' => 'Updated Title',
-        ]);
+    $this->assertDatabaseHas('articles', $dto->toArray());
+});
 
-        $this->articleRepository->update($dto);
+test('記事を削除する', function () {
+    $article = Article::factory()->create();
 
-        $this->assertDatabaseHas('articles', $dto->toArray());
-    }
+    $this->articleRepository->delete($article->id);
 
-    public function test_delete_article()
-    {
-        $article = Article::factory()->create();
+    $this->assertDatabaseMissing('articles', [
+        'id' => $article->id,
+    ]);
+});
 
-        $this->articleRepository->delete($article->id);
+test('いいね数を増やす', function () {
+    $article = Article::factory()->create(['like' => 0]);
 
-        $this->assertDatabaseMissing('articles', [
-            'id' => $article->id,
-        ]);
-    }
+    $result = $this->articleRepository->incrementLike($article->id);
 
-    public function test_increment_like()
-    {
-        $article = Article::factory()->create(['like' => 0]);
+    expect($result)->toEqual(1);
+    $this->assertDatabaseHas('articles', [
+        'id' => $article->id,
+        'like' => 1,
+    ]);
+});
 
-        $result = $this->articleRepository->incrementLike($article->id);
+test('いいね数を複数回増やす', function () {
+    $article = Article::factory()->create(['like' => 5]);
 
-        $this->assertEquals(1, $result);
-        $this->assertDatabaseHas('articles', [
-            'id' => $article->id,
-            'like' => 1,
-        ]);
-    }
+    $this->articleRepository->incrementLike($article->id);
+    $result = $this->articleRepository->incrementLike($article->id);
 
-    public function test_increment_like_multiple_times()
-    {
-        $article = Article::factory()->create(['like' => 5]);
-
-        $this->articleRepository->incrementLike($article->id);
-        $result = $this->articleRepository->incrementLike($article->id);
-
-        $this->assertEquals(7, $result);
-        $this->assertDatabaseHas('articles', [
-            'id' => $article->id,
-            'like' => 7,
-        ]);
-    }
-}
+    expect($result)->toEqual(7);
+    $this->assertDatabaseHas('articles', [
+        'id' => $article->id,
+        'like' => 7,
+    ]);
+});

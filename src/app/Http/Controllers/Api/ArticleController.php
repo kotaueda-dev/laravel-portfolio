@@ -42,7 +42,7 @@ class ArticleController extends Controller
                     ]
                 )
             ),
-            new OA\Response(response: 400, ref: '#/components/responses/400_InvalidParameter'),
+            new OA\Response(response: 422, ref: '#/components/responses/422_ValidationError'),
         ]
     )]
     public function index(ListArticleRequest $request)

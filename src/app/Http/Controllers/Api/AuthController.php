@@ -84,10 +84,10 @@ class AuthController extends Controller
     )]
     public function deleteAccount(DeleteAccountRequest $request)
     {
-        Log::info('ユーザーアカウント削除を開始します。', ['user_id' => Auth::id()]);
-
-        $user = Auth::user();
+        $user = $request->user();
         $userId = $user->id;
+
+        Log::info('ユーザーアカウント削除を開始します。', ['user_id' => $userId]);
 
         // パスワードチェック
         if (! Hash::check($request->password, $user->password)) {
@@ -147,12 +147,14 @@ class AuthController extends Controller
 
         $credentials = $request->validated();
 
-        if (! Auth::attempt($credentials)) {
+        // トークンベース認証では Auth::attempt() を使わず、手動で検証する
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             Log::warning('ユーザーログインに失敗しました。認証情報が不正です。');
             throw new AuthenticationException;
         }
 
-        $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         Log::info('ユーザーログインに成功しました。', ['user_id' => $user->id]);
@@ -188,11 +190,12 @@ class AuthController extends Controller
     )]
     public function logout(Request $request)
     {
-        $userId = Auth::id();
+        $user = $request->user();
+        $userId = $user->id;
 
         Log::info('ユーザーログアウトを試行します。', ['user_id' => $userId]);
 
-        $request->user()->currentAccessToken()->delete();
+        $user->currentAccessToken()->delete();
 
         Log::info('ユーザーログアウトに成功しました。', ['user_id' => $userId]);
 

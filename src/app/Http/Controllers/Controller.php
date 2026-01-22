@@ -34,11 +34,11 @@ use OpenApi\Attributes as OA;
             schema: 'PaginationMeta',
             properties: [
                 new OA\Property(property: 'current_page', type: 'integer', example: 1),
-                new OA\Property(property: 'from', type: 'integer', example: 1),
+                new OA\Property(property: 'from', type: 'integer', nullable: true, example: 1),
                 new OA\Property(property: 'last_page', type: 'integer', example: 3),
                 new OA\Property(property: 'path', type: 'string', example: 'http://localhost:8000/api/articles'),
                 new OA\Property(property: 'per_page', type: 'integer', example: 20),
-                new OA\Property(property: 'to', type: 'integer', example: 20),
+                new OA\Property(property: 'to', type: 'integer', nullable: true, example: 20),
                 new OA\Property(property: 'total', type: 'integer', example: 52),
             ]
         ),

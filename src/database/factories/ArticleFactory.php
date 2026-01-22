@@ -18,8 +18,8 @@ class ArticleFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->sentence,
-            'content' => $this->faker->paragraph,
+            'title' => $this->faker->sentence(),
+            'content' => $this->faker->paragraph(),
             'like' => $this->faker->numberBetween(0, 100),
             'user_id' => User::factory(),
         ];
