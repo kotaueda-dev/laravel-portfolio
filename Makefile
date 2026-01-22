@@ -1,5 +1,6 @@
 # 変数定義
 LARAVEL_DIR := backend
+NEXTJS_DIR := frontend
 APP_SERVER := laravel-app-server
 WEB_SERVER := laravel-web-server
 DB_SERVER := laravel-db-server
@@ -85,3 +86,7 @@ sqlite:
 	docker compose exec $(APP_SERVER) sqlite3 database/database.sqlite
 swagger:
 	docker compose exec $(APP_SERVER) php artisan l5-swagger:generate
+
+# Next.js関連コマンド
+dev-frontend:
+	cd $(NEXTJS_DIR) && pnpm dev --hostname 0.0.0.0 --port 3000
