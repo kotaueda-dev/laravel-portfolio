@@ -1,0 +1,19 @@
+{
+  "name": "laravel-portfolio-mono",
+  "version": "1.0.0",
+  "description": "Laravel 12 API + Next.js 14 モノレポプロジェクト",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  },
+  "keywords": [
+    "laravel",
+    "nextjs",
+    "monorepo",
+    "pnpm"
+  ],
+  "author": "",
+  "license": "MIT"
+}

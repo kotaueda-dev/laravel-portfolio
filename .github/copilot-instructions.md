@@ -1,9 +1,11 @@
 # Laravel Portfolio - AI コーディングエージェント向け指示書
 
 ## プロジェクト概要
-これは記事（Article）とコメント（Comment）を管理する **Laravel 12 REST API アプリケーション** です。Docker でコンテナ化され、Laravel の最新のアプリケーション構造に従っています。
+これは記事（Article）とコメント（Comment）を管理する **Laravel 12 REST API + Next.js フロントエンド** モノレポプロジェクトです。
 
-**注記**: これは **API専用** プロジェクトです。フロントエンド実装は含まれていません。
+- **バックエンド**: `backend/` - Laravel 12 REST API（Docker コンテナ化）
+- **フロントエンド**: `frontend/` - Next.js 14 + TypeScript（Node.js 開発サーバー）
+- **パッケージ管理**: pnpm ワークスペース
 
 ## アーキテクチャ & 主要コンポーネント
 
@@ -51,9 +53,9 @@ docker compose exec laravel-app-server php artisan test
 
 ### データベース
 - **デフォルト**: SQLite（開発環境用）
-- **ロケーション**: `src/database/database.sqlite`
-- **マイグレーション**: `src/database/migrations/` - `php artisan migrate` で自動実行
-- **シーダー**: `src/database/seeders/` - ArticleSeeder と CommentSeeder で テストデータ生成可能
+- **ロケーション**: `backend/database/database.sqlite`
+- **マイグレーション**: `backend/database/migrations/` - `php artisan migrate` で自動実行
+- **シーダー**: `backend/database/seeders/` - ArticleSeeder と CommentSeeder で テストデータ生成可能
 
 ### コード品質
 - **リント**: Laravel Pint（`./vendor/bin/pint`）
@@ -63,7 +65,7 @@ docker compose exec laravel-app-server php artisan test
 
 ### コンテナセットアップ
 - **メインコンテナ**: `laravel-app-server`（PHP 8.5 with Laravel 環境）
-- **作業ディレクトリ**: `/var/www/html`（`./src` からマウント）
+- **作業ディレクトリ**: `/var/www/html`（`./backend` からマウント）
 - **カスタム PHP 設定**: `docker-config/php/php.ini`（コンテナビルド時に適用）
 
 ### Eloquent モデル規約
@@ -127,12 +129,12 @@ docker compose exec laravel-app-server php artisan db:seed
 - アクセス: `make app` または `docker compose exec laravel-app-server sh`
 
 ## 主要ファイルリファレンス
-- モデル: `src/app/Models/`
-- ルート: `src/routes/api.php`
-- コントローラー: `src/app/Http/Controllers/Api/` （API コントローラーは `Api/` サブディレクトリに作成）
-- 設定: `src/config/` （集約された設定ファイル）
-- テスト: `src/tests/Feature/`、`src/tests/Unit/`
-- マイグレーション: `src/database/migrations/`
+- モデル: `backend/app/Models/`
+- ルート: `backend/routes/api.php`
+- コントローラー: `backend/app/Http/Controllers/Api/` （API コントローラーは `Api/` サブディレクトリに作成）
+- 設定: `backend/config/` （集約された設定ファイル）
+- テスト: `backend/tests/Feature/`、`backend/tests/Unit/`
+- マイグレーション: `backend/database/migrations/`
 
 ---
 
