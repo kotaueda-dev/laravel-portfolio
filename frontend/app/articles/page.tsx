@@ -1,14 +1,22 @@
 import { apiClient, type ArticleSummary } from '@/lib/api-client';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ArticlesPage() {
+export default async function ArticlesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  
   let articles: ArticleSummary[] = [];
   let currentPage = 1;
   let lastPage = 1;
 
   try {
-    const { data, meta } = await apiClient.getArticles();
+    const { data, meta } = await apiClient.getArticles(page);
     articles = data;
     currentPage = meta.current_page;
     lastPage = meta.last_page;
@@ -28,6 +36,7 @@ export default async function ArticlesPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-6 py-10">
+      
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm uppercase tracking-wide text-zinc-500">Articles</p>
@@ -37,6 +46,9 @@ export default async function ArticlesPage() {
           ページ {currentPage} / {lastPage}
         </div>
       </div>
+
+      {/* ページネーション（上部） */}
+      <Pagination currentPage={currentPage} lastPage={lastPage} />
 
       {articles.length === 0 ? (
         <p className="text-sm text-zinc-600">記事がありません。</p>
@@ -66,6 +78,95 @@ export default async function ArticlesPage() {
           ))}
         </ul>
       )}
+      
+      {/* ページネーション（下部） */}
+      <Pagination currentPage={currentPage} lastPage={lastPage} />
     </main>
+  );
+}
+
+function Pagination({ currentPage, lastPage }: { currentPage: number; lastPage: number }) {
+  const pages = Array.from({ length: lastPage }, (_, i) => i + 1);
+  
+  return (
+    <nav className="flex items-center justify-center gap-2">
+      {/* 最初へボタン */}
+      {currentPage > 1 ? (
+        <Link
+          href="/articles?page=1"
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          最初へ
+        </Link>
+      ) : (
+        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
+          最初へ
+        </span>
+      )}
+
+      {/* 前へボタン */}
+      {currentPage > 1 ? (
+        <Link
+          href={`/articles?page=${currentPage - 1}`}
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          前へ
+        </Link>
+      ) : (
+        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
+          前へ
+        </span>
+      )}
+
+      {/* ページ番号 */}
+      <div className="flex gap-2">
+        {pages.map((page) => (
+          page === currentPage ? (
+            <span
+              key={page}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            >
+              {page}
+            </span>
+          ) : (
+            <Link
+              key={page}
+              href={`/articles?page=${page}`}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              {page}
+            </Link>
+          )
+        ))}
+      </div>
+
+      {/* 次へボタン */}
+      {currentPage < lastPage ? (
+        <Link
+          href={`/articles?page=${currentPage + 1}`}
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          次へ
+        </Link>
+      ) : (
+        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
+          次へ
+        </span>
+      )}
+
+      {/* 最後へボタン */}
+      {currentPage < lastPage ? (
+        <Link
+          href={`/articles?page=${lastPage}`}
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          最後へ
+        </Link>
+      ) : (
+        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
+          最後へ
+        </span>
+      )}
+    </nav>
   );
 }
