@@ -1,5 +1,6 @@
 import { apiClient, type ArticleDetail, type CommentResponse } from '@/lib/api-client';
 import Link from 'next/link';
+import { CommentForm } from './components/CommentForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,12 +104,10 @@ export default async function ArticleDetailPage({
         )}
       </section>
 
-      {/* TODO: コメント投稿フォーム */}
+      {/* コメント投稿フォーム */}
       <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
         <h3 className="mb-4 text-lg font-bold text-zinc-900">コメントを追加</h3>
-        <p className="text-sm text-zinc-600">
-          （このフォームは後で実装予定です）
-        </p>
+        <CommentForm articleId={articleId} />
       </section>
     </main>
   );
