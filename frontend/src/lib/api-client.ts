@@ -16,7 +16,7 @@ export interface ArticleSummary {
 
 export interface ArticleDetail extends ArticleSummary {
   content: string;
-  comments?: unknown; // コメントは現状型が定義されていないため保留
+  comments?: CommentResponse[];
 }
 
 export interface CommentResponse {

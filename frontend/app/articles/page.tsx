@@ -62,7 +62,9 @@ export default async function ArticlesPage({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs text-zinc-500">ID: {article.id}</p>
-                  <h2 className="text-lg font-semibold text-zinc-900">{article.title}</h2>
+                  <Link href={`/articles/${article.id}`}>
+                    <h2 className="text-lg font-semibold text-zinc-900 hover:text-blue-600 hover:underline">{article.title}</h2>
+                  </Link>
                   <p className="text-xs text-zinc-500">
                     作成: {new Date(article.created_at).toLocaleString('ja-JP')}
                   </p>
