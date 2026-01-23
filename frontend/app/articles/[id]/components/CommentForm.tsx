@@ -1,6 +1,8 @@
 'use client';
 
 import { apiClient } from '@/lib/api-client';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -56,55 +58,55 @@ export function CommentForm({ articleId }: CommentFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-zinc-900">
+      <div className="space-y-2">
+        <label htmlFor="message" className="text-sm font-medium">
           コメント
         </label>
-        <textarea
+        <Textarea
           id="message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="ここにコメントを入力してください..."
           rows={4}
           disabled={isLoading}
-          className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-zinc-100 disabled:text-zinc-500"
+          className="resize-none"
         />
-        <div className="mt-1 flex justify-between">
-          <p className="text-xs text-zinc-500">
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">
             {message.length} / 500 文字
-          </p>
+          </span>
           {message.length > 500 && (
-            <p className="text-xs text-red-600">
+            <span className="text-destructive font-medium">
               500文字を超えています
-            </p>
+            </span>
           )}
         </div>
       </div>
 
       {/* エラーメッセージ */}
       {error && (
-        <div className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200">
-          <p className="font-medium">エラー</p>
-          <p>{error}</p>
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm">
+          <p className="font-medium text-destructive">エラー</p>
+          <p className="text-destructive/90">{error}</p>
         </div>
       )}
 
       {/* 成功メッセージ */}
       {success && (
-        <div className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-700 border border-green-200">
-          <p className="font-medium">成功</p>
-          <p>コメントが投稿されました。</p>
+        <div className="rounded-lg border border-green-500/50 bg-green-50 px-4 py-3 text-sm">
+          <p className="font-medium text-green-700">成功</p>
+          <p className="text-green-600">コメントが投稿されました。</p>
         </div>
       )}
 
       {/* 送信ボタン */}
-      <button
+      <Button
         type="submit"
         disabled={isLoading || message.trim().length === 0 || message.length > 500}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:bg-zinc-300 disabled:cursor-not-allowed transition-colors"
+        className="w-full"
       >
         {isLoading ? 'コメント投稿中...' : 'コメントを投稿'}
-      </button>
+      </Button>
     </form>
   );
 }

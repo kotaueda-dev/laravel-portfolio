@@ -1,5 +1,8 @@
 import { apiClient, type ArticleSummary } from '@/lib/api-client';
 import { LikeButton } from '@/app/components/LikeButton';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -36,45 +39,55 @@ export default async function ArticlesPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-6 py-10">
       
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm uppercase tracking-wide text-zinc-500">Articles</p>
-          <h1 className="text-3xl font-bold text-zinc-900">記事一覧</h1>
+          <Badge variant="secondary" className="mb-2">Articles</Badge>
+          <h1 className="text-4xl font-bold tracking-tight">記事一覧</h1>
         </div>
-        <div className="rounded-full bg-zinc-100 px-4 py-2 text-sm text-zinc-700">
+        <Badge variant="outline" className="h-9 px-4">
           ページ {currentPage} / {lastPage}
-        </div>
+        </Badge>
       </div>
 
       {/* ページネーション（上部） */}
       <Pagination currentPage={currentPage} lastPage={lastPage} />
 
       {articles.length === 0 ? (
-        <p className="text-sm text-zinc-600">記事がありません。</p>
+        <Card>
+          <CardContent className="py-10 text-center">
+            <p className="text-muted-foreground">記事がありません。</p>
+          </CardContent>
+        </Card>
       ) : (
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {articles.map((article) => (
-            <li
+            <Card
               key={article.id}
-              className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm hover:border-zinc-300"
+              className="transition-all hover:shadow-md"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs text-zinc-500">ID: {article.id}</p>
-                  <Link href={`/articles/${article.id}`}>
-                    <h2 className="text-lg font-semibold text-zinc-900 hover:text-blue-600 hover:underline">{article.title}</h2>
-                  </Link>
-                  <p className="text-xs text-zinc-500">
-                    作成: {new Date(article.created_at).toLocaleString('ja-JP')}
-                  </p>
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-2">
+                    <Badge variant="outline" className="text-xs">
+                      ID: {article.id}
+                    </Badge>
+                    <Link href={`/articles/${article.id}`}>
+                      <h2 className="text-xl font-semibold tracking-tight transition-colors hover:text-primary">
+                        {article.title}
+                      </h2>
+                    </Link>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(article.created_at).toLocaleString('ja-JP')}
+                    </p>
+                  </div>
+                  <LikeButton articleId={article.id} initialLikes={article.like} size="sm" />
                 </div>
-                <LikeButton articleId={article.id} initialLikes={article.like} size="sm" />
-              </div>
-            </li>
+              </CardHeader>
+            </Card>
           ))}
-        </ul>
+        </div>
       )}
       
       {/* ページネーション（下部） */}
@@ -87,84 +100,50 @@ function Pagination({ currentPage, lastPage }: { currentPage: number; lastPage: 
   const pages = Array.from({ length: lastPage }, (_, i) => i + 1);
   
   return (
-    <nav className="flex items-center justify-center gap-2">
+    <nav className="flex items-center justify-center gap-2 flex-wrap">
       {/* 最初へボタン */}
-      {currentPage > 1 ? (
-        <Link
-          href="/articles?page=1"
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          最初へ
-        </Link>
-      ) : (
-        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
-          最初へ
-        </span>
-      )}
+      <Button variant="outline" size="sm" asChild disabled={currentPage === 1}>
+        <Link href="/articles?page=1">最初へ</Link>
+      </Button>
 
       {/* 前へボタン */}
-      {currentPage > 1 ? (
-        <Link
-          href={`/articles?page=${currentPage - 1}`}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          前へ
-        </Link>
-      ) : (
-        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
-          前へ
-        </span>
-      )}
+      <Button variant="outline" size="sm" asChild disabled={currentPage === 1}>
+        <Link href={`/articles?page=${currentPage - 1}`}>前へ</Link>
+      </Button>
 
       {/* ページ番号 */}
       <div className="flex gap-2">
         {pages.map((page) => (
           page === currentPage ? (
-            <span
+            <Button
               key={page}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+              size="sm"
+              disabled
             >
               {page}
-            </span>
+            </Button>
           ) : (
-            <Link
+            <Button
               key={page}
-              href={`/articles?page=${page}`}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              variant="outline"
+              size="sm"
+              asChild
             >
-              {page}
-            </Link>
+              <Link href={`/articles?page=${page}`}>{page}</Link>
+            </Button>
           )
         ))}
       </div>
 
       {/* 次へボタン */}
-      {currentPage < lastPage ? (
-        <Link
-          href={`/articles?page=${currentPage + 1}`}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          次へ
-        </Link>
-      ) : (
-        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
-          次へ
-        </span>
-      )}
+      <Button variant="outline" size="sm" asChild disabled={currentPage === lastPage}>
+        <Link href={`/articles?page=${currentPage + 1}`}>次へ</Link>
+      </Button>
 
       {/* 最後へボタン */}
-      {currentPage < lastPage ? (
-        <Link
-          href={`/articles?page=${lastPage}`}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          最後へ
-        </Link>
-      ) : (
-        <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400">
-          最後へ
-        </span>
-      )}
+      <Button variant="outline" size="sm" asChild disabled={currentPage === lastPage}>
+        <Link href={`/articles?page=${lastPage}`}>最後へ</Link>
+      </Button>
     </nav>
   );
 }

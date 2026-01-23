@@ -1,5 +1,9 @@
 import { apiClient, type ArticleDetail, type CommentResponse } from '@/lib/api-client';
 import { LikeButton } from '@/app/components/LikeButton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { CommentForm } from './components/CommentForm';
 
@@ -47,64 +51,81 @@ export default async function ArticleDetailPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-6 py-10">
       {/* 戻るリンク */}
-      <Link href="/articles" className="text-sm text-blue-600 hover:underline">
-        ← 一覧に戻る
-      </Link>
+      <Button variant="ghost" size="sm" asChild>
+        <Link href="/articles">← 一覧に戻る</Link>
+      </Button>
 
       {/* 記事情報 */}
-      <article className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex items-start justify-between">
-          <div>
-            <p className="text-xs text-zinc-500">ID: {article.id}</p>
-            <h1 className="text-3xl font-bold text-zinc-900">{article.title}</h1>
-            <p className="mt-2 text-sm text-zinc-600">
-              作成: {new Date(article.created_at).toLocaleString('ja-JP')}
+      <Card>
+        <CardHeader>
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="flex-1 space-y-3">
+              <Badge variant="outline">ID: {article.id}</Badge>
+              <CardTitle className="text-3xl tracking-tight">{article.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {new Date(article.created_at).toLocaleString('ja-JP')}
+              </p>
+            </div>
+            <LikeButton articleId={article.id} initialLikes={article.like} size="lg" />
+          </div>
+        </CardHeader>
+        <Separator />
+        <CardContent className="pt-6">
+          <div className="prose prose-sm max-w-none">
+            <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">
+              {article.content}
             </p>
           </div>
-          <LikeButton articleId={article.id} initialLikes={article.like} size="lg" />
-        </div>
-
-        {/* 記事内容 */}
-        <div className="prose prose-sm max-w-none border-t border-zinc-200 pt-6">
-          <div className="whitespace-pre-wrap text-zinc-700">{article.content}</div>
-        </div>
-      </article>
+        </CardContent>
+      </Card>
 
       {/* コメントセクション */}
-      <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-bold text-zinc-900">
-          コメント ({comments.length})
-        </h2>
-
-        {comments.length === 0 ? (
-          <p className="text-sm text-zinc-600">コメントはまだありません。</p>
-        ) : (
-          <ul className="space-y-4">
-            {comments.map((comment) => (
-              <li
-                key={comment.id}
-                className="border-l-4 border-blue-500 bg-zinc-50 p-4"
-              >
-                <p className="mb-2 text-sm font-semibold text-zinc-900">
-                  コメント #{comment.id}
-                </p>
-                <p className="mb-3 text-zinc-700">{comment.message}</p>
-                <p className="text-xs text-zinc-500">
-                  {new Date(comment.created_at).toLocaleString('ja-JP')}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            コメント
+            <Badge variant="secondary">{comments.length}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {comments.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground py-8">
+              コメントはまだありません。
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="rounded-lg border-l-4 border-primary/50 bg-muted/30 p-4"
+                >
+                  <div className="mb-2 flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      #{comment.id}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(comment.created_at).toLocaleString('ja-JP')}
+                    </span>
+                  </div>
+                  <p className="leading-relaxed">{comment.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* コメント投稿フォーム */}
-      <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-zinc-900">コメントを追加</h3>
-        <CommentForm articleId={articleId} />
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>コメントを追加</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CommentForm articleId={articleId} />
+        </CardContent>
+      </Card>
     </main>
   );
 }

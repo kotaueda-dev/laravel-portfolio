@@ -1,6 +1,7 @@
 'use client';
 
 import { apiClient } from '@/lib/api-client';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -46,36 +47,32 @@ export function LikeButton({
     }
   };
 
-  const sizeClasses = {
-    sm: 'gap-1 px-2 py-1 text-xs',
-    md: 'gap-2 px-3 py-1 text-sm',
-    lg: 'gap-2 px-4 py-2 text-base',
-  };
-
-  const heartSizeClasses = {
-    sm: 'text-base',
-    md: 'text-xl',
-    lg: 'text-2xl',
+  const sizeMap = {
+    sm: 'sm' as const,
+    md: 'default' as const,
+    lg: 'lg' as const,
   };
 
   return (
-    <button
+    <Button
       onClick={handleLike}
       disabled={isLiking}
-      className={`flex items-center rounded-full bg-pink-50 font-semibold text-pink-600 transition-all hover:bg-pink-100 disabled:opacity-70 ${sizeClasses[size]}`}
+      variant="secondary"
+      size={sizeMap[size]}
+      className="gap-2"
     >
       <span
-        className={`inline-block transition-transform duration-300 ${
+        className={`inline-block text-lg transition-transform duration-300 ${
           liked ? 'animate-bounce' : ''
-        } ${heartSizeClasses[size]}`}
+        }`}
         role="img"
         aria-label="likes"
       >
         ❤️
       </span>
-      <span className={`tabular-nums ${liked ? 'animate-pulse' : ''}`}>
+      <span className={`tabular-nums font-semibold ${liked ? 'animate-pulse' : ''}`}>
         {likes}
       </span>
-    </button>
+    </Button>
   );
 }

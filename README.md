@@ -70,7 +70,7 @@ cd frontend && pnpm dev
 ## テスト
 以下のコマンドでテストを実行できます：
 ```bash
-docker compose exec laravel-app-server php artisan test
+make test
 ```
 
 ## ディレクトリ構造
