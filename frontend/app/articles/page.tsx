@@ -1,4 +1,5 @@
 import { apiClient, type ArticleSummary } from '@/lib/api-client';
+import { LikeButton } from '@/app/components/LikeButton';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -69,12 +70,7 @@ export default async function ArticlesPage({
                     作成: {new Date(article.created_at).toLocaleString('ja-JP')}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 rounded-full bg-pink-50 px-3 py-1 text-sm text-pink-600">
-                  <span aria-label="likes" role="img">
-                    ❤️
-                  </span>
-                  <span className="font-semibold">{article.like}</span>
-                </div>
+                <LikeButton articleId={article.id} initialLikes={article.like} size="sm" />
               </div>
             </li>
           ))}

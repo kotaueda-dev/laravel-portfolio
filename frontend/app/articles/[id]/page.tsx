@@ -1,4 +1,5 @@
 import { apiClient, type ArticleDetail, type CommentResponse } from '@/lib/api-client';
+import { LikeButton } from '@/app/components/LikeButton';
 import Link from 'next/link';
 import { CommentForm } from './components/CommentForm';
 
@@ -62,12 +63,7 @@ export default async function ArticleDetailPage({
               作成: {new Date(article.created_at).toLocaleString('ja-JP')}
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-full bg-pink-50 px-4 py-2 text-lg text-pink-600">
-            <span role="img" aria-label="likes">
-              ❤️
-            </span>
-            <span className="font-semibold">{article.like}</span>
-          </div>
+          <LikeButton articleId={article.id} initialLikes={article.like} size="lg" />
         </div>
 
         {/* 記事内容 */}
