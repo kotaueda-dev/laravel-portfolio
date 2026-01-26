@@ -1,5 +1,5 @@
 import { apiClient, type ArticleSummary } from '@/lib/api-client';
-import { LikeButton } from '@/app/components/LikeButton';
+import { LikeButton } from '@/components/LikeButton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
