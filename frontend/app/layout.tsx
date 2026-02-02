@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Laravel Portfolio",
-  description: "Laravel 12 API + Next.js 14 モノレポプロジェクト",
+  description: "Laravel 12 API + Next.js 16 モノレポプロジェクト",
 };
 
 export default function RootLayout({
@@ -112,7 +112,7 @@ export default function RootLayout({
                 <CardContent>
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li>• Laravel 12 + PHP 8.5</li>
-                    <li>• Next.js 14 + TypeScript</li>
+                    <li>• Next.js 16 + TypeScript</li>
                     <li>• Tailwind CSS + shadcn/ui</li>
                     <li>• Docker + Nginx + PHP-FPM</li>
                   </ul>

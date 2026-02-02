@@ -15,9 +15,9 @@ export default async function ArticlesPage({
   const params = await searchParams;
   const page = Number(params.page) || 1;
   
-  let articles: ArticleSummary[] = [];
-  let currentPage = 1;
-  let lastPage = 1;
+  let articles: ArticleSummary[];
+  let currentPage: number;
+  let lastPage: number;
 
   try {
     const { data, meta } = await apiClient.getArticles(page);
