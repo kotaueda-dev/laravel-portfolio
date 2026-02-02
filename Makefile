@@ -13,7 +13,7 @@ CACHE_SERVER := laravel-cache-server
 
 # Laravelプロジェクトの新規作成
 setup:
-	@if [ ! -d $(LARAVEL_DIR)/vendor ]; then \
+	@if [ ! -d $(LARAVEL_DIR)/vendor ] && [ ! -d $(NEXTJS_DIR)/node_modules ]; then \
 		make up; \
 		docker compose cp ./docker-config/php/.env.laravel $(APP_SERVER):/var/www/html/.env; \
 		docker compose cp ./docker-config/php/.env.testing.laravel $(APP_SERVER):/var/www/html/.env.testing; \
@@ -23,6 +23,7 @@ setup:
 		docker compose exec $(APP_SERVER) php artisan migrate --seed; \
 		docker compose exec $(APP_SERVER) chmod -R 777 storage bootstrap/cache; \
 		docker compose exec $(APP_SERVER) chown -R laravel:laravel /var/www/html; \
+		cd $(NEXTJS_DIR) && npm install; \
 	else \
 		echo "-> Laravelプロジェクトが存在するため、インストールをスキップしました。"; \
 	fi

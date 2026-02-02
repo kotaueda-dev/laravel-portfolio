@@ -11,49 +11,36 @@
 
 ## 技術スタック
 - **バックエンド**: Laravel 12 + PHP 8.5 (PHP-FPM)
-- **フロントエンド**: Next.js 14 + TypeScript + Tailwind CSS
+- **フロントエンド**: Next.js 16 + TypeScript + shadcn/ui
 - **言語**: PHP 8.5+、TypeScript
-- **データベース**: SQLite（開発環境）
+- **データベース**: MySQL
 - **キャッシュ**: Redis
 - **コンテナ**: Docker Compose
 - **Webサーバ**: Nginx
-- **認証**: Laravel Sanctum（将来の実装予定）
-- **テスト**: PHPUnit
-- **パッケージ管理**: pnpm（ワークスペース）
+- **認証**: Laravel Sanctum
+- **テスト**: Pest
 
 ## セットアップ手順
 
 ### 必要要件
 - Docker & Docker Compose
 - Node.js 24 LTS （nvm で管理）
-- pnpm
 
 ### 初期セットアップ
 ```bash
 # 1. Laravelセットアップ
 make setup
 
-# 2. フロントエンド依存関係インストール
-pnpm install
-
-# 3. nvm設定確認
+# 2. nvm設定確認
 nvm use
 ```
 
 ### 開発サーバーの起動
 
-**ターミナル 1: バックエンド**
 ```bash
-make up          # Docker コンテナ起動
-make logs        # ログ確認
+cd frontend && npm run dev
 ```
 
-**ターミナル 2: フロントエンド**
-```bash
-cd frontend && pnpm dev
-```
-
-- バックエンド API: `http://localhost:8000/api`
 - フロントエンド: `http://localhost:3000`
 
 ## API エンドポイント
