@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Config;
 
-const NOT_FOUND_JA = 'リソースが見つかりません。';
-const NOT_FOUND_EN = 'Not found.';
+const NOT_FOUND_JA = 'リソースが見つかりません';
+const NOT_FOUND_EN = 'Not found';
 
 test('Accept-Languageがjaの場合、日本語のエラーメッセージを返す', function () {
     Config::set('app.locale', 'ja');
