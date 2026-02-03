@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { apiClient } from '@/lib/api-client';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { likeArticle } from "@/lib/api-client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface LikeButtonProps {
   articleId: number;
   initialLikes: number;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 }
 
 export function LikeButton({
   articleId,
   initialLikes,
-  size = 'md',
+  size = "md",
 }: LikeButtonProps) {
   const router = useRouter();
   const [isLiking, setIsLiking] = useState(false);
@@ -30,7 +30,7 @@ export function LikeButton({
     setLikes((prev) => prev + 1);
 
     try {
-      await apiClient.likeArticle(articleId);
+      await likeArticle(articleId);
       // サーバーデータを再取得
       router.refresh();
 
@@ -40,22 +40,22 @@ export function LikeButton({
       // エラー時は元に戻す
       setLikes((prev) => prev - 1);
       setLiked(false);
-      console.error('Failed to like article:', error);
+      console.error("Failed to like article:", error);
     } finally {
       setIsLiking(false);
     }
   };
 
   const sizeClasses = {
-    sm: 'gap-1 px-2 py-1 text-xs',
-    md: 'gap-2 px-3 py-1 text-sm',
-    lg: 'gap-2 px-4 py-2 text-base',
+    sm: "gap-1 px-2 py-1 text-xs",
+    md: "gap-2 px-3 py-1 text-sm",
+    lg: "gap-2 px-4 py-2 text-base",
   };
 
   const heartSizeClasses = {
-    sm: 'text-base',
-    md: 'text-xl',
-    lg: 'text-2xl',
+    sm: "text-base",
+    md: "text-xl",
+    lg: "text-2xl",
   };
 
   return (
@@ -66,14 +66,14 @@ export function LikeButton({
     >
       <span
         className={`inline-block transition-transform duration-300 ${
-          liked ? 'animate-bounce' : ''
+          liked ? "animate-bounce" : ""
         } ${heartSizeClasses[size]}`}
         role="img"
         aria-label="likes"
       >
         ❤️
       </span>
-      <span className={`tabular-nums ${liked ? 'animate-pulse' : ''}`}>
+      <span className={`tabular-nums ${liked ? "animate-pulse" : ""}`}>
         {likes}
       </span>
     </button>
