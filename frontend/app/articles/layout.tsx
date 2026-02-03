@@ -31,14 +31,13 @@ export default function RootLayout({
           </div>
           <div className="flex items-center gap-4">
             <Button size="sm" asChild>
-              <Link href="/admin/login">ログイン</Link>
+              <Link href="/login">ログイン</Link>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* メインコンテンツ */}
-      <main className="min-h-screen">{children}</main>
+      {children}
 
       {/* フッター */}
       <footer className="border-t bg-background">
