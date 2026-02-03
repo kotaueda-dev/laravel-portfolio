@@ -6,18 +6,6 @@ import Cookies from "js-cookie";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
-/**
- * 認証ヘッダーを取得
- */
-function getAuthHeaders() {
-  const token = Cookies.get("auth_token");
-  if (!token) return {};
-
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-}
-
 // APIのスキーマ定義
 export interface ArticleSummary {
   id: number;
@@ -54,6 +42,28 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface LoginResponse {
+  message: string;
+  token: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+}
+
+/**
+ * 認証ヘッダーを取得
+ */
+function getAuthHeaders() {
+  const token = Cookies.get("token");
+  if (!token) return {};
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 /**
  * ログイン（Laravel /api/login）
  */
@@ -63,7 +73,7 @@ export async function login({
 }: {
   email: string;
   password: string;
-}) {
+}): Promise<LoginResponse> {
   const res = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: {
@@ -71,8 +81,8 @@ export async function login({
       Accept: "application/json",
     },
     body: JSON.stringify({ email, password }),
-    credentials: "include", // セッションCookieを利用する場合
   });
+
   if (!res.ok) {
     let message = "ログインに失敗しました";
     try {

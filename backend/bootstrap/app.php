@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -34,7 +35,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(fn ($request, $e) => $request->is('api/*'));
 
         // 401: AuthenticationException (認証エラー)
-        $exceptions->render(function (AuthenticationException $e) {
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/login')) {
+                return response()->json([
+                    'message' => __('errors.invalid_credentials'),
+                ], 401);
+            }
+
             return response()->json([
                 'message' => __('errors.unauthenticated'),
             ], 401);
