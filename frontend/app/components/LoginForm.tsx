@@ -3,9 +3,8 @@
 import { useState } from "react";
 import * as z from "zod";
 import { LockKeyhole, Loader2, Eye, EyeOff } from "lucide-react";
-import Cookies from "js-cookie";
 
-import { login } from "@/lib/api-client";
+import { loginAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -72,24 +71,14 @@ export default function LoginForm() {
 
     setIsLoading(true);
     try {
-      const response = await login({
-        email: formData.email,
-        password: formData.password,
-      });
+      const result = await loginAction(formData.email, formData.password);
 
-      // レスポンスが成功（200）であることを確認
-      if (!response.token) {
-        throw new Error("トークンを取得できませんでした");
+      if (!result.success) {
+        setAuthError(result.error || "ログインに失敗しました");
+        return;
       }
 
-      // トークンをクッキーに保存
-      Cookies.set("token", response.token, {
-        expires: 7, // 7日間有効
-        secure: process.env.NODE_ENV === "production", // 本番環境のみHTTPSを強制
-        sameSite: "strict", // CSRF 対策
-      });
-
-      // ログイン成功 - ホームページへリダイレクト
+      // ログイン成功 - ダッシュボードへリダイレクト
       window.location.href = "/dashboard";
     } catch (error) {
       // API エラーメッセージを表示
@@ -183,7 +172,6 @@ export default function LoginForm() {
                             ? "パスワードを非表示"
                             : "パスワードを表示"
                         }
-                        tabIndex={-1}
                       >
                         {showPassword ? (
                           <EyeOff className="size-5" aria-hidden="true" />
