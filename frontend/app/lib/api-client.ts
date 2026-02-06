@@ -2,8 +2,6 @@
  * Laravel REST API クライアント
  */
 
-import Cookies from "js-cookie";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 // APIのスキーマ定義
@@ -49,18 +47,6 @@ export interface LoginResponse {
     id: number;
     name: string;
     email: string;
-  };
-}
-
-/**
- * 認証ヘッダーを取得
- */
-function getAuthHeaders() {
-  const token = Cookies.get("token");
-  if (!token) return {};
-
-  return {
-    Authorization: `Bearer ${token}`,
   };
 }
 
