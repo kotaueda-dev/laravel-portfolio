@@ -182,7 +182,7 @@ describe('ユーザーログアウトAPI', function () {
 
             $loginResponse->assertValidResponse(200);
 
-            $token = $loginResponse->json('access_token');
+            $token = $loginResponse->json('token');
 
             expect($token)->not->toBeNull();
 

@@ -1,13 +1,17 @@
-import { apiClient, type ArticleDetail, type CommentResponse } from '@/lib/api-client';
-import { LikeButton } from '@/components/LikeButton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
-import { CommentForm } from './components/CommentForm';
+import {
+  getArticle,
+  type ArticleDetail,
+  type CommentResponse,
+} from "@/lib/api-client";
+import { LikeButton } from "@/components/LikeButton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { CommentForm } from "./components/CommentForm";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function ArticleDetailPage({
   params,
@@ -21,19 +25,24 @@ export default async function ArticleDetailPage({
   let comments: CommentResponse[] = [];
 
   try {
-    article = await apiClient.getArticle(articleId);
+    article = await getArticle(articleId);
     comments = article.comments || [];
   } catch (error) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-6 py-10">
-        <Link href="/articles" className="text-sm text-blue-600 hover:underline">
+        <Link
+          href="/articles"
+          className="text-sm text-blue-600 hover:underline"
+        >
           ← 一覧に戻る
         </Link>
         <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
           記事の取得に失敗しました。
         </p>
         {error instanceof Error && (
-          <code className="rounded-md bg-zinc-900 px-3 py-2 text-xs text-zinc-100">{error.message}</code>
+          <code className="rounded-md bg-zinc-900 px-3 py-2 text-xs text-zinc-100">
+            {error.message}
+          </code>
         )}
       </main>
     );
@@ -42,7 +51,10 @@ export default async function ArticleDetailPage({
   if (!article) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-6 py-10">
-        <Link href="/articles" className="text-sm text-blue-600 hover:underline">
+        <Link
+          href="/articles"
+          className="text-sm text-blue-600 hover:underline"
+        >
           ← 一覧に戻る
         </Link>
         <p className="text-sm text-zinc-600">記事が見つかりません。</p>
@@ -63,12 +75,18 @@ export default async function ArticleDetailPage({
           <div className="mb-4 flex items-start justify-between gap-4">
             <div className="flex-1 space-y-3">
               <Badge variant="outline">ID: {article.id}</Badge>
-              <CardTitle className="text-3xl tracking-tight">{article.title}</CardTitle>
+              <CardTitle className="text-3xl tracking-tight">
+                {article.title}
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
-                {new Date(article.created_at).toLocaleString('ja-JP')}
+                {new Date(article.created_at).toLocaleString("ja-JP")}
               </p>
             </div>
-            <LikeButton articleId={article.id} initialLikes={article.like} size="lg" />
+            <LikeButton
+              articleId={article.id}
+              initialLikes={article.like}
+              size="lg"
+            />
           </div>
         </CardHeader>
         <Separator />
@@ -106,7 +124,7 @@ export default async function ArticleDetailPage({
                       #{comment.id}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(comment.created_at).toLocaleString('ja-JP')}
+                      {new Date(comment.created_at).toLocaleString("ja-JP")}
                     </span>
                   </div>
                   <p className="leading-relaxed">{comment.message}</p>

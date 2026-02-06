@@ -126,7 +126,7 @@ class AuthController extends Controller
                             example: 'Logged in successfully.'
                         ),
                         new OA\Property(
-                            property: 'access_token',
+                            property: 'token',
                             type: 'string',
                             example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...'
                         ),
@@ -155,13 +155,13 @@ class AuthController extends Controller
             throw new AuthenticationException;
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('token')->plainTextToken;
 
         Log::info('ユーザーログインに成功しました。', ['user_id' => $user->id]);
 
         return response()->json([
             'message' => 'Logged in successfully.',
-            'access_token' => $token,
+            'token' => $token,
             'user' => new UserResource($user),
         ], 200);
     }

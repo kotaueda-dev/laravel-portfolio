@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { apiClient } from '@/lib/api-client';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { addComment } from "@/lib/api-client";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface CommentFormProps {
   articleId: number;
@@ -12,7 +12,7 @@ interface CommentFormProps {
 
 export function CommentForm({ articleId }: CommentFormProps) {
   const router = useRouter();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -24,20 +24,20 @@ export function CommentForm({ articleId }: CommentFormProps) {
 
     // フロントエンドバリデーション
     if (!message.trim()) {
-      setError('コメントを入力してください。');
+      setError("コメントを入力してください。");
       return;
     }
 
     if (message.length > 500) {
-      setError('コメントは500文字以内にしてください。');
+      setError("コメントは500文字以内にしてください。");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      await apiClient.addComment(articleId, message.trim());
-      setMessage('');
+      await addComment(articleId, message.trim());
+      setMessage("");
       setSuccess(true);
 
       // ページをリフレッシュしてサーバーキャッシュを無効化
@@ -49,7 +49,7 @@ export function CommentForm({ articleId }: CommentFormProps) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('コメント投稿に失敗しました。');
+        setError("コメント投稿に失敗しました。");
       }
     } finally {
       setIsLoading(false);
@@ -102,10 +102,12 @@ export function CommentForm({ articleId }: CommentFormProps) {
       {/* 送信ボタン */}
       <Button
         type="submit"
-        disabled={isLoading || message.trim().length === 0 || message.length > 500}
+        disabled={
+          isLoading || message.trim().length === 0 || message.length > 500
+        }
         className="w-full"
       >
-        {isLoading ? 'コメント投稿中...' : 'コメントを投稿'}
+        {isLoading ? "コメント投稿中..." : "コメントを投稿"}
       </Button>
     </form>
   );
